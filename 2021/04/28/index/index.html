@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="索引的出现其实就是为了提高数据查询的效率，就像书的目录一样。 实现索引的方式却有很多种，这里也就引入了索引模型的概念。 用于提高读写效率的数据结构很多，比较简单的数据结构分别是哈希表、有序数组和搜索树。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="索引(一)">
+<meta property="og:url" content="https://cwww3.github.io/2021/04/28/index/index.html">
+<meta property="og:site_name" content="Cwww3&#39;s Blog">
+<meta property="og:description" content="索引的出现其实就是为了提高数据查询的效率，就像书的目录一样。 实现索引的方式却有很多种，这里也就引入了索引模型的概念。 用于提高读写效率的数据结构很多，比较简单的数据结构分别是哈希表、有序数组和搜索树。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427151555806.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427151814311.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427152159214.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427232638252.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427233958349.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427234541755.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427235715656.png">
+<meta property="article:published_time" content="2021-04-27T16:15:55.000Z">
+<meta property="article:modified_time" content="2021-05-26T02:22:03.000Z">
+<meta property="article:author" content="Cwww3">
+<meta property="article:tag" content="MySql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427151555806.png">
+
+<link rel="canonical" href="https://cwww3.github.io/2021/04/28/index/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>索引(一) | Cwww3's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Cwww3's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Cwww3's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Record what you think</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2021/04/28/index/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/my-avatar.png">
+      <meta itemprop="name" content="Cwww3">
+      <meta itemprop="description" content="Record what you think">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cwww3's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          索引(一)
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-04-28 00:15:55" itemprop="dateCreated datePublished" datetime="2021-04-28T00:15:55+08:00">2021-04-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-26 10:22:03" itemprop="dateModified" datetime="2021-05-26T10:22:03+08:00">2021-05-26</time>
+              </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2021/04/28/index/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/04/28/index/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>索引的出现其实就是为了提高数据查询的效率，就像书的目录一样。</strong></p>
+<p>实现索引的方式却有很多种，这里也就引入了索引模型的概念。</p>
+<p>用于提高读写效率的数据结构很多，比较简单的数据结构分别是哈希表、有序数组和搜索树。</p>
+<span id="more"></span>
+
+<p><strong>哈希表</strong></p>
+<p>哈希表是一种以键 - 值（key-value）存储数据的结构。不可避免地，会存在哈希冲突。</p>
+<p>处理这种情况的一种方法是，拉出一个链表。</p>
+<img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427151555806.png" alt="image-20210427151555806" style="zoom:50%;" />
+
+<p>哈希表这种结构适用于只有<strong>等值查询</strong>的场景，比如 Memcached 及其他一些 NoSQL 引擎。如果要范围查询，就必须全部扫描一遍了。</p>
+<p><strong>有序数组</strong></p>
+<p>有序数组在等值查询和范围查询场景中的性能就都非常优秀(采用二分法能快速找到对应目标)</p>
+<img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427151814311.png" alt="image-20210427151814311" style="zoom:50%;" />
+
+
+
+<p>如果仅仅看<strong>查询效率</strong>，有序数组就是最好的数据结构了。但是，在需要<strong>更新数据</strong>的时候就麻烦了，往中间插入一个记录就必须得挪动后面所有的记录，成本太高。所以，有序数组索引只适用于<strong>静态存储引擎</strong>。</p>
+<p><strong>二叉搜索树</strong></p>
+<p>二叉搜索树的特点是：父节点左子树所有结点的值小于父节点的值，右子树所有结点的值大于父节点的值。</p>
+<p>如果查 ID_card_n2 的话，按照图中的搜索顺序就是按照 UserA -&gt; UserC -&gt; UserF -&gt; User2 这个路径得到。时间复杂度O(log(N))。</p>
+<img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427152159214.png" alt="image-20210427152159214" style="zoom:50%;" />
+
+<p>为了维持 O(log(N)) 的查询复杂度，你就需要保持这棵树是平衡二叉树。为了做这个保证，更新的时间复杂度也是 O(log(N))。</p>
+<p>二叉树是搜索效率最高的，但是实际上大多数的数据库存储却并不使用二叉树。其原因是，<strong>索引不止存在内存中，还要写到磁盘上</strong>。</p>
+<p>一棵 100 万节点的平衡二叉树，树高 20。一次查询可能需要访问 20 个数据块(最多查20次拿到结果)。</p>
+<p>为了让一个查询尽量少地读磁盘，就必须让查询过程访问尽量少的数据块，也就是每次查询拿到的数据块有用的信息足够多，让树的高度要尽可能小。那么，应该使用“N 叉”树。这里，“N 叉”树中的“N”取决于数据块的大小。</p>
+<p>以 InnoDB 的一个整数字段索引为例，这个 N 差不多是 1200 (由16K/(8B+6B)得到)。这棵树高是 4 的时候，就可以存 1200 的 3 次方个值，这已经 17 亿了。考虑到<strong>树根的数据块总是在内存中</strong>的，一个 10 亿行的表上一个整数字段的索引，查找一个值最多只需要访问 3 次磁盘。其实，树的第二层也有很大概率在内存中，那么访问磁盘的平均次数就更少了。</p>
+<p>在 MySQL 中，<strong>索引是在存储引擎层实现的</strong>，所以并没有统一的索引标准，即不同存储引擎的索引的工作方式并不一样。而即使多个存储引擎支持同一种类型的索引，其底层的实现也可能不同。</p>
+<h3 id="InnoDB-的索引模型"><a href="#InnoDB-的索引模型" class="headerlink" title="InnoDB 的索引模型"></a>InnoDB 的索引模型</h3><p>在 InnoDB 中，表都是根据主键顺序以索引的形式存放的，这种存储方式的表称为<strong>索引组织表</strong>。InnoDB 使用了 B+ 树索引模型，所以数据都是存储在 B+ 树中的。<strong>每一个索引在 InnoDB 里面对应一棵 B+ 树</strong>。</p>
+<p>假设，有一个主键列为 ID 的表，表中有字段 k，并且在 k 上有索引。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create table T(id int primary key, k int not null, name varchar(16),index (k))engine=InnoDB;</span><br></pre></td></tr></table></figure>
+
+<p>表中 R1~R5 的 (ID,k) 值分别为 (100,1)、(200,2)、(300,3)、(500,5) 和 (600,6)，两棵树的示例示意图如下。</p>
+<img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427232638252.png" alt="image-20210427232638252" style="zoom:50%;" />
+
+
+
+<p>根据叶子节点的内容，索引类型分为<strong>主键索引</strong>和<strong>非主键索引</strong>。</p>
+<p>主键索引的叶子节点存的是整行数据。在 InnoDB 里，主键索引也被称为聚簇索引（clustered index）。</p>
+<p>非主键索引的叶子节点内容是主键的值。在 InnoDB 里，非主键索引也被称为二级索引（secondary index）。</p>
+<p><strong>基于主键索引和普通索引的查询有什么区别？</strong></p>
+<ul>
+<li><p><code> select * from T where ID=500</code>，即主键查询方式，则只需要搜索 ID 这棵 B+ 树；</p>
+</li>
+<li><p><code> select * from T where k=5</code>，即普通索引查询方式，则需要先搜索 k 索引树，得到 ID 的值为 500，再到 ID 索引树搜索一次。这个过程称为<strong>回表</strong>。</p>
+</li>
+</ul>
+<p>也就是说，基于非主键索引的查询需要多扫描一棵索引树。</p>
+<h3 id="索引维护"><a href="#索引维护" class="headerlink" title="索引维护"></a>索引维护</h3><p>B+ 树为了维护索引有序性，在插入新值的时候需要做必要的维护。</p>
+<p>以上面这个图为例，如果插入新的行 ID 值为 700，则只需要在 R5 的记录后面插入一个新记录。</p>
+<p>如果新插入的 ID 值为 400，就相对麻烦了，需要逻辑上挪动后面的数据，空出位置。</p>
+<p>而更糟的情况是，如果 R5 所在的数据页已经满了，根据 B+ 树的算法，这时候需要申请一个新的数据页，然后挪动部分数据过去。</p>
+<p>这个过程称为<strong>页分裂</strong>。<strong>性能</strong>自然会受影响。还影响数据页的利用率。原本放在一个页的数据，现在分到两个页中，整体<strong>空间利用率</strong>降低大约 50%。</p>
+<p><strong>当然有分裂就有合并</strong>。当相邻两个页由于删除了数据，利用率很低之后，会将数据页做合并。合并的过程，可以认为是分裂过程的逆过程。</p>
+<p><strong>自增主键</strong></p>
+<ul>
+<li><p>每次插入一条新记录，都是追加操作，不会触发分裂。</p>
+</li>
+<li><p>主键长度小，普通索引的叶子节点小，普通索引占用的空间小。</p>
+</li>
+<li><p>逻辑删除能防止页合并</p>
+</li>
+</ul>
+<h3 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a>覆盖索引</h3><p>在下面这个表 T 中，执行<code> select * from T where k between 3 and 5</code>，需要执行几次树的搜索操作？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; create table T (</span><br><span class="line">  ID int primary key,</span><br><span class="line">  k int NOT NULL DEFAULT 0, </span><br><span class="line">  s varchar(16) NOT NULL DEFAULT &#x27;&#x27;,</span><br><span class="line">  index k(k)</span><br><span class="line">)engine=InnoDB;</span><br><span class="line"></span><br><span class="line">insert into T values(100,1, &#x27;aa&#x27;),(200,2,&#x27;bb&#x27;),(300,3,&#x27;cc&#x27;),(500,5,&#x27;ee&#x27;),(600,6,&#x27;ff&#x27;),(700,7,&#x27;gg&#x27;);</span><br></pre></td></tr></table></figure>
+
+<img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427233958349.png" alt="image-20210427233958349" style="zoom:50%;" />
+
+<p>这条 SQL 查询语句的执行流程：</p>
+<ol>
+<li>在 k 索引树上找到 k=3 的记录，取得 ID = 300；</li>
+<li>再到 ID 索引树查到 ID=300 对应的 R3；</li>
+<li>在 k 索引树取下一个值 k=5，取得 ID=500；</li>
+<li>再回到 ID 索引树查到 ID=500 对应的 R4；</li>
+<li>在 k 索引树取下一个值 k=6，不满足条件，循环结束。</li>
+</ol>
+<p>这个查询过程读了 k 索引树的 3 条记录（步骤 1、3 和 5），回表了两次（步骤 2 和 4）。</p>
+<p>由于查询结果所需要的数据只在主键索引上有，所以不得不回表。那么，有没有可能经过索引优化，<strong>避免回表</strong>过程呢？</p>
+<p>如果执行的语句是<code> select ID from T where k between 3 and 5</code>，这时<strong>只需要查 ID</strong> 的值，而 ID 的值<strong>已经在 k 索引树上</strong>了，因此可以直接提供查询结果，不需要回表。</p>
+<p>也就是说，在这个查询里面，索引 k 已经“覆盖了”我们的查询需求，我们称为<strong>覆盖索引</strong>。</p>
+<p><strong>由于覆盖索引可以减少树的搜索次数，显著提升查询性能，所以使用覆盖索引是一个常用的性能优化手段。</strong></p>
+<h3 id="最左前缀原则"><a href="#最左前缀原则" class="headerlink" title="最左前缀原则"></a>最左前缀原则</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE `tuser` (</span><br><span class="line">  `id` int(11) NOT NULL,</span><br><span class="line">  `id_card` varchar(32) DEFAULT NULL,</span><br><span class="line">  `name` varchar(32) DEFAULT NULL,</span><br><span class="line">  `age` int(11) DEFAULT NULL,</span><br><span class="line">  `ismale` tinyint(1) DEFAULT NULL,</span><br><span class="line">  PRIMARY KEY (`id`),</span><br><span class="line">  KEY `id_card` (`id_card`),</span><br><span class="line">  KEY `name_age` (`name`,`age`)</span><br><span class="line">) ENGINE=InnoDB</span><br></pre></td></tr></table></figure>
+
+<p>为了直观地说明这个概念，用（name，age）这个联合索引来分析。</p>
+<img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427234541755.png" alt="image-20210427234541755" style="zoom:50%;" />
+
+<p>可以看到，索引项是按照索引定义里面出现的字段顺序排序的。</p>
+<p>当逻辑需求是查到所有名字是“张三”的人时，可以快速定位到 ID4，然后向后遍历得到所有需要的结果。</p>
+<p>如果你要查的是所有名字第一个字是“张”的人，你的 SQL 语句的条件是”where name like ‘张 %’”。这时，你也能够用上这个索引，查找到第一个符合条件的记录是 ID3，然后向后遍历，直到不满足条件为止。</p>
+<p><strong>不只是索引的全部定义，只要满足最左前缀，就可以利用索引来加速检索。</strong></p>
+<p><strong>在建立联合索引的时候，如何安排索引内的字段顺序?</strong></p>
+<p><strong>评估标准是索引的复用能力</strong>，当已经有了 (a,b) 这个联合索引后，一般就不需要单独在 a 上建立索引了。</p>
+<p>如果既有联合查询，又有基于 a、b 各自的查询呢？查询条件里面只有 b 的语句，是无法使用 (a,b) 这个联合索引的，这时候不得不维护另外一个索引，也就是说需要同时维护 (a,b)、(b) 这两个索引或者(b,a),(a)。</p>
+<p>这时候，要考虑的原则就是<strong>空间</strong>了。字段长的只建立一次，短的建立两次。</p>
+<h3 id="索引下推"><a href="#索引下推" class="headerlink" title="索引下推"></a>索引下推</h3><p>最左前缀可以用于在索引中定位记录。那些不符合最左前缀的部分，会怎么样呢？</p>
+<p>以上图为例，存在联合索引（name, age）。检索出表中“名字第一个字是张，而且年龄是 10 岁的所有男孩”。</p>
+<p>那么，SQL 语句是这么写的：<code>mysql&gt; select * from tuser where name like &#39;张%&#39; and age=10 and ismale=1;</code></p>
+<p>这个语句在搜索索引树的时候，只能用 “张”，找到第一个满足条件的记录 ID3。然后判断其他条件是否满足。</p>
+<p>在 MySQL 5.6 之前，只能从 ID3 开始<strong>一个个回表</strong>。到主键索引上找出数据行，<strong>再对比</strong>字段值。</p>
+<p>MySQL 5.6 引入的索引下推优化（index condition pushdown)， 可以在<strong>索引遍历过程中</strong>，<strong>对索引中包含的字段先做判断</strong>，直接<strong>过滤</strong>掉不满足条件的记录，<strong>减少回表次数</strong>。</p>
+<img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210427235715656.png" alt="image-20210427235715656" style="zoom:50%;" />
+
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>Donate comment here.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Cwww3 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MySql/" rel="tag"># MySql</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/27/isolation-mvcc/" rel="prev" title="Isolation And MVCC">
+      <i class="fa fa-chevron-left"></i> Isolation And MVCC
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/04/29/mysql-lock/" rel="next" title="MySql锁">
+      MySql锁 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB-%E7%9A%84%E7%B4%A2%E5%BC%95%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">InnoDB 的索引模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E7%BB%B4%E6%8A%A4"><span class="nav-number">2.</span> <span class="nav-text">索引维护</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95"><span class="nav-number">3.</span> <span class="nav-text">覆盖索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E5%8E%9F%E5%88%99"><span class="nav-number">4.</span> <span class="nav-text">最左前缀原则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E4%B8%8B%E6%8E%A8"><span class="nav-number">5.</span> <span class="nav-text">索引下推</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Cwww3"
+      src="/images/my-avatar.png">
+  <p class="site-author-name" itemprop="name">Cwww3</p>
+  <div class="site-description" itemprop="description">Record what you think</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/cwww3" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/15761669/cwww3" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;15761669&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cwww3</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'YhdC1c2cA0bpuapj4ksny0W9-gzGzoHsz',
+      appKey     : 'TIwAfWuWHudJm4hWreg0vUKo',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

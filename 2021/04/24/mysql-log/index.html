@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="WAlWAL 的全称是 Write-Ahead Logging，它的关键点就是先写日志，再写磁盘，（先写日志 也是写入磁盘，写日志是顺序写盘，速度很快） redo log具体来说，当有一条记录需要更新的时候，InnoDB 引擎就会先把记录写到 redo log里面，并更新内存，这个时候更新就算完成了。同时，InnoDB 引擎会在适当的时候，将这个操作记录更新到磁盘里面，而这个更新往往是在系统比较空">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySql日志系统">
+<meta property="og:url" content="https://cwww3.github.io/2021/04/24/mysql-log/index.html">
+<meta property="og:site_name" content="Cwww3&#39;s Blog">
+<meta property="og:description" content="WAlWAL 的全称是 Write-Ahead Logging，它的关键点就是先写日志，再写磁盘，（先写日志 也是写入磁盘，写日志是顺序写盘，速度很快） redo log具体来说，当有一条记录需要更新的时候，InnoDB 引擎就会先把记录写到 redo log里面，并更新内存，这个时候更新就算完成了。同时，InnoDB 引擎会在适当的时候，将这个操作记录更新到磁盘里面，而这个更新往往是在系统比较空">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210424175348370.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210424175407812.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210424175424457.png">
+<meta property="article:published_time" content="2021-04-24T09:32:17.000Z">
+<meta property="article:modified_time" content="2021-05-26T02:22:03.000Z">
+<meta property="article:author" content="Cwww3">
+<meta property="article:tag" content="MySql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210424175348370.png">
+
+<link rel="canonical" href="https://cwww3.github.io/2021/04/24/mysql-log/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MySql日志系统 | Cwww3's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Cwww3's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Cwww3's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Record what you think</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2021/04/24/mysql-log/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/my-avatar.png">
+      <meta itemprop="name" content="Cwww3">
+      <meta itemprop="description" content="Record what you think">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cwww3's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MySql日志系统
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-04-24 17:32:17" itemprop="dateCreated datePublished" datetime="2021-04-24T17:32:17+08:00">2021-04-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-26 10:22:03" itemprop="dateModified" datetime="2021-05-26T10:22:03+08:00">2021-05-26</time>
+              </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2021/04/24/mysql-log/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/04/24/mysql-log/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="WAl"><a href="#WAl" class="headerlink" title="WAl"></a>WAl</h4><p>WAL 的全称是 Write-Ahead Logging，它的关键点就是<strong>先写日志，再写磁盘</strong>，（先写日志 也是写入磁盘，写日志是<strong>顺序</strong>写盘，速度很快）</p>
+<h4 id="redo-log"><a href="#redo-log" class="headerlink" title="redo log"></a>redo log</h4><p>具体来说，当有一条记录需要更新的时候，InnoDB 引擎就会先把记录<strong>写到 redo log</strong>里面，并<strong>更新内存</strong>，这个时候更新就算完成了。同时，InnoDB 引擎会在适当的时候，将这个操作记录<strong>更新到磁盘</strong>里面，而这个更新往往是在系统比较空闲的时候做。</p>
+<span id="more"></span>
+<p>InnoDB 的 redo log 是<strong>固定大小</strong>的，比如可以配置为<strong>一组 4 个文件</strong>，每个文件的大小是 1GB，那么总共就可以记录 4GB 的操作。从头开始写，写到末尾就又回到开头<strong>循环</strong>写，如下面这个图所示。</p>
+<img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210424175348370.png" alt="image-20210424175348370" style="zoom:50%;" />
+
+<p><strong>write pos</strong> 是当前记录的位置，一边写一边后移，写到第 3 号文件末尾后就回到 0 号文件开头。</p>
+<p><strong>checkpoint</strong> 是当前要擦除的位置，也是往后推移并且循环的，擦除记录前要把记录更新到数据文件。</p>
+<p>write pos 和 checkpoint 之间的是还空着的部分，可以用来记录新的操作。如果 write pos 追上 checkpoint，表示满了，不能再执行新的更新，得停下来处理掉一些记录，把 checkpoint 推进一下。</p>
+<p>有了 redo log，InnoDB 就可以保证即使数据库发生异常重启，之前提交的记录都不会丢失，这个能力称为 <strong>crash-safe</strong>。本质上说，crash-safe 就是<strong>落盘处理</strong>，将数据存储到了磁盘上，断电重启也不会丢失</p>
+<h4 id="bin-log"><a href="#bin-log" class="headerlink" title="bin log"></a>bin log</h4><p>redo log 是 InnoDB 引擎特有的日志，而 Server 层也有自己的日志，称为 binlog（归档日志）。</p>
+<p>为什么会有两份日志呢？</p>
+<p>因为最开始 MySQL 里并没有 InnoDB 引擎。MySQL 自带的引擎是 MyISAM，但是 MyISAM 没有 crash-safe 的能力，binlog 日志只能用于归档。而 InnoDB 是另一个公司以插件形式引入 MySQL 的，既然只依靠 binlog 是没有 crash-safe 能力的，所以 InnoDB 使用另外一套日志系统——也就是 redo log 来实现 crash-safe 能力。</p>
+<p>这两种日志有以下三点不同</p>
+<ol>
+<li>redo log 是 <strong>InnoDB</strong> <strong>引擎特有</strong>的；binlog 是 MySQL 的 Server 层实现的，所有引擎都可以使用。</li>
+<li>redo log 是<strong>物理日志</strong>，记录的是“在某个<strong>数据页上</strong>做了什么修改”；binlog 是<strong>逻辑日志</strong>，记录的是这个语句的原始逻辑。</li>
+<li>redo log 是<strong>循环写</strong>的，<strong>空间固定</strong>会用完；binlog 是可以<strong>追加写入</strong>的。追加写是指 binlog 文件写到一定大小后会切换到下一个，并不会覆盖以前的日志。</li>
+</ol>
+<h4 id="更新流程"><a href="#更新流程" class="headerlink" title="更新流程"></a>更新流程</h4><p>执行器和 InnoDB 引擎在执行简单 update 语句时的内部流程。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update T set c=c+1 where ID=2;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>执行器先找引擎取 ID=2 这一行。ID 是主键，引擎直接用树搜索找到这一行。如果 ID=2 这一行所在的<strong>数据页</strong>本来就<strong>在内存中</strong>，就直接返回给执行器；否则，需要先<strong>从磁盘读入内存</strong>，然后再返回。(所以对于更新操作，并不会更新某条记录就把<strong>某条记录</strong>查询到内存中对其做修改就行，而是将<strong>对应记录所在页</strong>都加载到内存中。)</li>
+<li>执行器拿到引擎给的行数据，把这个值加上 1，比如原来是 N，现在就是 N+1，<strong>得到新的一行数据</strong>，再<strong>调用引擎接口写入</strong>这行新数据（写入内存）。</li>
+<li><strong>引擎</strong>将这行新数据更新到内存中，同时将这个<strong>更新操作记录</strong>到 redo log 里面，此时 redo log 处于 <strong>prepare</strong> 状态。然后<strong>告知执行器</strong>执行完成了，随时可以提交事务。</li>
+<li>执行器生成这个操作的 binlog，并把 binlog 写入磁盘。</li>
+<li><strong>执行器调用引擎的提交事务接口</strong>，引擎把刚刚写入的 redo log 改成提交（<strong>commit</strong>）状态，更新完成。</li>
+</ol>
+<p>以下是 update 语句的执行流程图，浅色框表示是在 <strong>InnoDB</strong> 内部执行的，深色框表示是在<strong>执行器</strong>中执行的。</p>
+<img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210424175407812.png" alt="image-20210424175407812" style="zoom:50%;" />
+
+<p>redo log 的写入拆成了两个步骤：prepare 和 commit，这就是”<strong>两阶段提交</strong>“。</p>
+<h4 id="两阶段提交"><a href="#两阶段提交" class="headerlink" title="两阶段提交"></a>两阶段提交</h4><p>两阶段提交为了让两份日志之间的<strong>逻辑一致</strong>。</p>
+<p>binlog 会记录所有的<strong>逻辑操作</strong>，并且是采用<strong>追加写</strong>的形式。备份系统中会保存最近一段时间的所有 binlog，同时系统会定期做<strong>整库备份</strong>。根据系统的重要性，可以是一天一备，也可以是一周一备。</p>
+<p>当需要恢复到指定的某一秒时，比如某天下午两点发现中午十二点有一次误删表，需要找回数据，可以这么做：</p>
+<ul>
+<li>首先，找到<strong>最近</strong>的一次全量备份，如果你运气好，可能就是昨天晚上的一个备份，从这个备份恢复到<strong>临时库</strong>；</li>
+<li>然后，从备份的<strong>时间点</strong>开始，将备份的 binlog <strong>依次取出</strong>来，重放到中午误删表之前的那个<strong>时刻</strong>。</li>
+</ul>
+<p>这样你的临时库就跟<strong>误删之前</strong>的线上库一样了，然后你可以把表数据从临时库取出来，按需要恢复到线上库去。</p>
+<p>为什么日志需要“<strong>两阶段提交</strong>”。这里不妨用<strong>反证法</strong>来进行解释。</p>
+<p>由于 redo log 和 binlog 是两个<strong>独立</strong>的逻辑，如果不用两阶段提交，要么就是先写完 redo log 再写 binlog，或者采用反过来的顺序。看看这两种方式会有什么问题。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">update T set c=c+1 where ID=2;</span><br></pre></td></tr></table></figure>
+
+<p>假设当前 ID=2 的行，字段 c 的值是 0，再假设执行 update 语句过程中在写完第一个日志后，第二个日志还没有写完期间发生了 crash，会出现什么情况呢？</p>
+<ol>
+<li><strong>先写 redo log 后写 binlog</strong>。假设在 redo log 写完，binlog 还没有写完的时候，MySQL 进程异常重启。由于我们前面说过的，<strong>redo log 写完之后，系统即使崩溃，仍然能够把数据恢复回来</strong>，所以恢复后这一行 c 的值是 1。但是由于 binlog 没写完就 crash 了，这时候 binlog 里面就没有记录这个语句。因此，之后<strong>备份日志的时候，存起来的 binlog 里面就没有这条语句</strong>。如果需要用这个 binlog 来恢复临时库的话，由于这个语句的 binlog 丢失，这个<strong>临时库就会少</strong>了这一次<strong>更新</strong>，恢复出来的这一行 c 的值就是 0，与原库的值<strong>不同</strong>。</li>
+<li><strong>先写 binlog 后写 redo log</strong>。如果在 binlog 写完之后 crash，由于 redo log 还没写，崩溃恢复以后这个<strong>事务无效</strong>，所以这一行 c 的值是 0。但是 binlog 里面已经记录了“把 c 从 0 改成 1”这个日志。所以，在之后<strong>用 binlog 来恢复</strong>的时候就<strong>多了一个事务</strong>出来，恢复出来的这一行 c 的值就是 1，与原库的值不同。</li>
+</ol>
+<p>可以看到，如果不使用两阶段提交，那么<strong>数据库的状态</strong>就有可能和用它的<strong>日志恢复出来的库的状态</strong>不一致。</p>
+<p>本质上是因为 <strong>redo log 负责事务</strong>； <strong>binlog负责归档恢复</strong>； 各司其职，相互配合，才保证了现有功能的完整性；</p>
+<p>redolog和binlog具有关联行，在恢复数据时，redolog<strong>用于恢复主机故障时的未更新的物理数据</strong>，binlog<strong>用于备份操作</strong>。每个阶段的log操作都是记录在磁盘的，在恢复数据时，redolog <strong>状态为commit则说明binlog也成功</strong>，直接恢复数据；如果redolog是prepare，则需要查询对应的binlog事务是否成功(一个完整的binlog结尾有固定的格式)，决定是回滚还是执行。</p>
+<h4 id="细节"><a href="#细节" class="headerlink" title="细节"></a>细节</h4><p><strong>redo log buffer 是什么？是先修改内存，还是先写 redo log 文件？</strong></p>
+<ul>
+<li>log 也是先记录在内存中(redo log buffer )，然后在写入磁盘。</li>
+<li>mysql肯定是没有权限直接操作磁盘的，必须要通过OS提供的接口操作。这种情况就可能会丢数据：mysql调用OS的接口将redo log写入磁盘，OS返回true，但是<strong>实际</strong>这个页的数据还是在<strong>buffer</strong>里没有实际刷盘，此时OS崩了，那么数据也就没了。</li>
+<li><strong>innodb_flush_log_at_trx_commit</strong> 这个参数设置成 1 ，表示每次事务的 redo log 都<strong>直接持久化</strong>到磁盘。这样可以保证 MySQL 异常重启之后数据不丢失。</li>
+<li><strong>sync_binlog</strong> 设置成 1 ，表示每次事务的 binlog 都持久化到磁盘，可以保证 MySQL 异常重启之后 binlog 不丢失。</li>
+</ul>
+<p><strong>MySQL 怎么知道 binlog 是完整的?</strong></p>
+<ul>
+<li>row 格式的 binlog，最后会有一个 XID event。</li>
+<li>statement 格式的 binlog，最后会有 COMMIT；</li>
+</ul>
+<p><strong>redo log 和 binlog 是怎么关联起来的?</strong></p>
+<ul>
+<li>它们有一个共同的数据字段，叫 XID。崩溃恢复的时候，会按顺序扫描 redo log：<ul>
+<li>如果碰到既有 prepare、又有 commit 的 redo log，就直接提交；</li>
+<li>如果碰到只有 parepare、而没有 commit 的 redo log，就拿着 XID 去 binlog 找对应的事务。</li>
+</ul>
+</li>
+</ul>
+<p><strong>为什么只用bin log没有crash-safe的能力</strong></p>
+<img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/image-20210424175424457.png" alt="image-20210424175424457" style="zoom:50%;" />
+
+<ul>
+<li>binlog 没有能力恢复<strong>数据页</strong> 。在图中位置发生crash，这时对数据的更新可能还停留在内存中，并未刷盘。mysql重启后。binlog2可以将事务2进行恢复。但是对于事务1来说，系统已经认为提交完成了，不会再对它做处理。这样会导致一次事务的丢失。</li>
+<li>redo log 记录的就是更新的操作，而且没有被写入磁盘的。所以重启后redo log里所有的记录都是需要更新到磁盘的。但是binlog记录的是所有的记录，不知道那些记录被写入磁盘了。</li>
+</ul>
+<p><strong>数据写入后的最终落盘，是从 redo log 更新过来的还是从 buffer pool 更新过来的呢？</strong></p>
+<ul>
+<li>redo log 并没有记录数据页的完整数据，所以它并没有能力自己去更新磁盘数据页。</li>
+<li>如果是正常运行的实例的话，数据页被修改以后，跟磁盘的数据页不一致，称为脏页。最终数据落盘，就是把内存中的数据页写盘。</li>
+<li>在崩溃恢复场景中，InnoDB 如果判断到一个数据页可能在崩溃恢复的时候丢失了更新，就会将它<strong>读到内存</strong>，然后<strong>让 redo log 更新内存内容</strong>。更新完成后，内存页变成脏页，最终数据落盘。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>Donate comment here.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Cwww3 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/MySql/" rel="tag"># MySql</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/18/vim/" rel="prev" title="Vim 基本操作">
+      <i class="fa fa-chevron-left"></i> Vim 基本操作
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/04/24/ssh/" rel="next" title="SSH">
+      SSH <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#WAl"><span class="nav-number">1.</span> <span class="nav-text">WAl</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#redo-log"><span class="nav-number">2.</span> <span class="nav-text">redo log</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bin-log"><span class="nav-number">3.</span> <span class="nav-text">bin log</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0%E6%B5%81%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">更新流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4"><span class="nav-number">5.</span> <span class="nav-text">两阶段提交</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%86%E8%8A%82"><span class="nav-number">6.</span> <span class="nav-text">细节</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Cwww3"
+      src="/images/my-avatar.png">
+  <p class="site-author-name" itemprop="name">Cwww3</p>
+  <div class="site-description" itemprop="description">Record what you think</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/cwww3" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/15761669/cwww3" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;15761669&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cwww3</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'YhdC1c2cA0bpuapj4ksny0W9-gzGzoHsz',
+      appKey     : 'TIwAfWuWHudJm4hWreg0vUKo',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

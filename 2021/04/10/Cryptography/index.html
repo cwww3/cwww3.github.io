@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="哈希定义 把任意长度的输入通过哈希算法变换成固定长度的输出，该输出就是散列值。 这种转换是一种压缩映射。散列值又称摘要(Digest)、校验值(Checksum)、指纹(Fingerprint)  用途 完整性校验  加密">
+<meta property="og:type" content="article">
+<meta property="og:title" content="密码学">
+<meta property="og:url" content="https://cwww3.github.io/2021/04/10/Cryptography/index.html">
+<meta property="og:site_name" content="Cwww3&#39;s Blog">
+<meta property="og:description" content="哈希定义 把任意长度的输入通过哈希算法变换成固定长度的输出，该输出就是散列值。 这种转换是一种压缩映射。散列值又称摘要(Digest)、校验值(Checksum)、指纹(Fingerprint)  用途 完整性校验  加密">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/1609256058591-2b32cc9e-f3d4-46d0-9f8b-dc3d498fd6b5.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/1609256032286-18fda154-1f9f-4fb1-8cb3-ce1e3f0b6e04.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/1608958332701-5b9a5d63-0019-4d62-926f-6ed273fd67fb.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/1608960447857-b04864b2-9aa7-40c7-ac14-e053a62432dd.png">
+<meta property="article:published_time" content="2021-04-10T04:41:31.000Z">
+<meta property="article:modified_time" content="2021-05-26T02:22:03.000Z">
+<meta property="article:author" content="Cwww3">
+<meta property="article:tag" content="密码学">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/1609256058591-2b32cc9e-f3d4-46d0-9f8b-dc3d498fd6b5.png">
+
+<link rel="canonical" href="https://cwww3.github.io/2021/04/10/Cryptography/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>密码学 | Cwww3's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Cwww3's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Cwww3's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Record what you think</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2021/04/10/Cryptography/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/my-avatar.png">
+      <meta itemprop="name" content="Cwww3">
+      <meta itemprop="description" content="Record what you think">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cwww3's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          密码学
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-04-10 12:41:31" itemprop="dateCreated datePublished" datetime="2021-04-10T12:41:31+08:00">2021-04-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-05-26 10:22:03" itemprop="dateModified" datetime="2021-05-26T10:22:03+08:00">2021-05-26</time>
+              </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2021/04/10/Cryptography/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/04/10/Cryptography/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="哈希"><a href="#哈希" class="headerlink" title="哈希"></a>哈希</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><ul>
+<li>把<strong>任意长度</strong>的输入通过哈希算法变换成<strong>固定长度</strong>的输出，该输出就是散列值。 这种转换是一种<strong>压缩映射。</strong>散列值又称<strong>摘要</strong>(<strong>Digest</strong>)、<strong>校验值</strong>(<strong>Checksum</strong>)、<strong>指纹</strong>(<strong>Fingerprint</strong>)</li>
+</ul>
+<h3 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h3><ul>
+<li><p>完整性校验</p>
+</li>
+<li><p>加密</p>
+<span id="more"></span>
+<h3 id="具体应用"><a href="#具体应用" class="headerlink" title="具体应用"></a>具体应用</h3></li>
+<li><p>安全Hash编码法(<strong>Secure Hash Algorithm</strong>)</p>
+<ul>
+<li>SHA家族的五个算法，分别是SHA-1、SHA-224、SHA-256、SHA-384，和SHA-512，后四者有时并称为SHA-2。</li>
+</ul>
+</li>
+<li><p> <strong>MD5</strong>(<strong>Standards for Message Digest</strong>)</p>
+</li>
+<li><p> 循环冗余校验 <strong>CRC-32</strong> (<strong>Cyclic redundancy check</strong>)</p>
+</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">md := md5.New()</span><br><span class="line">md.Write([]<span class="keyword">byte</span>(<span class="string">&quot;msg&quot;</span>))</span><br><span class="line">sum := md.Sum(<span class="literal">nil</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h3><ul>
+<li>一般来讲，长度越长，安全性越高，计算耗时越长。安全性高的被用作加密，安全性低的主要用来做完整性校验对称加密</li>
+</ul>
+<h2 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h2><h3 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h3><ul>
+<li>同一个密钥可以同时用来加密和解密，这种加密方法称为对称加密，也称为单密钥加密</li>
+</ul>
+<h3 id="用途-1"><a href="#用途-1" class="headerlink" title="用途"></a>用途</h3><ul>
+<li>加密</li>
+</ul>
+<h3 id="具体应用-1"><a href="#具体应用-1" class="headerlink" title="具体应用"></a>具体应用</h3><ul>
+<li><p>DES</p>
+<ul>
+<li>密钥的长度必须为 8 个字符（64 位） </li>
+</ul>
+</li>
+<li><p>3DES </p>
+<ul>
+<li> 密钥的长度必须为 24 个字符</li>
+</ul>
+</li>
+<li><p>AES</p>
+<ul>
+<li>密钥的长度可以是 16/24/32 个字符（128/192/256 位）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="加密方式"><a href="#加密方式" class="headerlink" title="加密方式"></a>加密方式</h3><ul>
+<li>ECB(Electronic codebook) ： 把每一个数据块独立加密，最后拼接。解密时先拆分后解密。</li>
+</ul>
+<img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/1609256058591-2b32cc9e-f3d4-46d0-9f8b-dc3d498fd6b5.png" alt="image.png" style="zoom:50%;" />
+
+<h3 id="填充"><a href="#填充" class="headerlink" title="填充"></a>填充</h3><ul>
+<li>数据补位一般有<strong>NoPadding</strong>和<strong>PKCS7Padding</strong>(JAVA中是PKCS5Padding)填充方式，PKCS7Padding和PKCS5Padding实际只是协议不一样，根据相关资料说明：PKCS5Padding明确定义了加密块是8字节，PKCS7Padding加密快可以是1-255之间。但是封装的DES算法默认都是8字节，所以可以认为他们一样。数据补位实际是在数据不满8字节的倍数，才补充到8字节的倍数的填充过程。</li>
+<li><strong>NoPadding填充方式</strong>：算法本身不填充，比如.NET的padding提供了有None，Zeros方式，分别为不填充和填充0的方式。</li>
+<li><strong>PKCS7Padding（PKCS5Padding）填充方式</strong>：为.NET和JAVA的默认填充方式，对加密数据字节长度对8取余为r，如r大于0，则补8-r个字节，字节为8-r的值；如果r等于0，则补8个字节8。比如：加密字符串为为AAA，则补位为AAA55555;加密字符串为BBBBBB，则补位为BBBBBB22；加密字符串为CCCCCCCC，则补位为CCCCCCCC88888888。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AEC-ECB</span></span><br><span class="line">src := []<span class="keyword">byte</span>(<span class="string">&quot;123456&quot;</span>)</span><br><span class="line">key := []<span class="keyword">byte</span>(<span class="string">&quot;1234567890123456&quot;</span>)</span><br><span class="line">dst , _ := openssl.AesECBEncrypt(src, key, openssl.PKCS7_PADDING)</span><br><span class="line">fmt.Printf(base64.StdEncoding.EncodeToString(dst))  <span class="comment">// yXVUkR45PFz0UfpbDB8/ew==</span></span><br><span class="line"></span><br><span class="line">dst , _ = openssl.AesECBDecrypt(dst, key, openssl.PKCS7_PADDING)</span><br><span class="line">fmt.Println(<span class="keyword">string</span>(dst)) <span class="comment">// 123456</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>CBC(Cipher-block chaining)： 加密每一个数据块时，都会与上一个数据块之间有联系。第一个块中需要使用初始化向量。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/1609256032286-18fda154-1f9f-4fb1-8cb3-ce1e3f0b6e04.png" alt="image.png" style="zoom:50%;" />- </p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AEC-CBC</span></span><br><span class="line">src := []<span class="keyword">byte</span>(<span class="string">&quot;123456&quot;</span>)</span><br><span class="line">key := []<span class="keyword">byte</span>(<span class="string">&quot;1234567890123456&quot;</span>)</span><br><span class="line">iv := []<span class="keyword">byte</span>(<span class="string">&quot;1234567890123456&quot;</span>)</span><br><span class="line">dst , _ := openssl.AesCBCEncrypt(src, key, iv, openssl.PKCS7_PADDING)</span><br><span class="line">fmt.Println(base64.StdEncoding.EncodeToString(dst)) <span class="comment">// 1jdzWuniG6UMtoa3T6uNLA==</span></span><br><span class="line"></span><br><span class="line">dst , _ = openssl.AesCBCDecrypt(dst, key, iv, openssl.PKCS7_PADDING)</span><br><span class="line">fmt.Println(<span class="keyword">string</span>(dst)) <span class="comment">// 123456</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h2><h3 id="定义-2"><a href="#定义-2" class="headerlink" title="定义"></a>定义</h3><ul>
+<li>又名<strong>公开密钥加密</strong>(<strong>public-key cryptography</strong>) 使用两个不同的密钥：加密密钥和解密密钥。这两个密钥是<strong>数学相关</strong>，用某用户加密密钥加密后所得的信息，只能用该用户的解密密钥才能解密。<strong>如果知道了其中一个，并不能计算出另外一个</strong>。因此如果公开了一对密钥中的一个，并不会危害到另外一个的秘密性质。称公开的密钥为公钥；不公开的密钥为私钥。</li>
+</ul>
+<h3 id="用途-2"><a href="#用途-2" class="headerlink" title="用途"></a>用途</h3><ul>
+<li><p>加密通信(公钥加密，私钥解密)</p>
+</li>
+<li><p>数字签名(私钥加密，公钥解密)</p>
+<ul>
+<li>认证、防止抵赖、验证完整性</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/1608958332701-5b9a5d63-0019-4d62-926f-6ed273fd67fb.png" alt="image.png"></p>
+<h3 id="具体应用-2"><a href="#具体应用-2" class="headerlink" title="具体应用"></a>具体应用</h3><ul>
+<li><p>RSA</p>
+<ul>
+<li>基于整数分解</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/cwww3/picture@master/img/1608960447857-b04864b2-9aa7-40c7-ac14-e053a62432dd.png" alt="image.png"></p>
+<ul>
+<li><p>ECC椭圆曲线算法(效率高)</p>
+<ul>
+<li>基于离散对数</li>
+</ul>
+</li>
+</ul>
+<h3 id="安全性-1"><a href="#安全性-1" class="headerlink" title="安全性"></a>安全性</h3><ul>
+<li>根据公钥运算出私钥的难度越大，越安全。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 生成秘钥对</span></span><br><span class="line">privateKey, err := rsa.GenerateKey(rand.Reader, <span class="number">1024</span>)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">   <span class="built_in">panic</span>(err)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 公钥</span></span><br><span class="line">publicKey := privateKey.PublicKey</span><br><span class="line">msg := []<span class="keyword">byte</span>(<span class="string">&quot;重要信息&quot;</span>)</span><br><span class="line">sha := sha256.New()</span><br><span class="line"><span class="comment">// 加密信息</span></span><br><span class="line">encryptedMsg, err := rsa.EncryptOAEP(sha, rand.Reader, &amp;publicKey, msg, <span class="literal">nil</span>)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">   <span class="built_in">panic</span>(err)</span><br><span class="line">&#125;</span><br><span class="line">fmt.Println(encryptedMsg)</span><br><span class="line"><span class="comment">// 解密信息</span></span><br><span class="line">decryptedMsg, err := privateKey.Decrypt(<span class="literal">nil</span>, encryptedMsg, &amp;rsa.OAEPOptions&#123;Hash: crypto.SHA256&#125;)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">   <span class="built_in">panic</span>(err)</span><br><span class="line">&#125;</span><br><span class="line">fmt.Println(<span class="keyword">string</span>(decryptedMsg))</span><br></pre></td></tr></table></figure>
+
+<h3 id="数字签名"><a href="#数字签名" class="headerlink" title="数字签名"></a>数字签名</h3><ul>
+<li><p>数字签名在发送方，分两步：</p>
+<ol>
+<li>从内容算摘要（哈希算法）</li>
+<li>从摘要明文到摘要密文，也称数字签名（发送方私钥+加密算法）</li>
+</ol>
+</li>
+<li><p>数字签名验证在接收方，分两步：</p>
+<ol>
+<li>从摘要密文（数字签名）到摘要明文（发送方公钥+解密算法）</li>
+<li> 从收到的内容当场计算摘要（哈希算法），与（1）的结果比对是否一致</li>
+</ol>
+</li>
+<li><p>如果一致，可以说明两点：</p>
+<ol>
+<li>内容未被篡改（摘要一致）</li>
+<li>内容只能是私钥拥方发送，不可抵赖（密文能够用对方的公钥解开）</li>
+</ol>
+</li>
+</ul>
+<p>然后单独想一下，</p>
+<ol>
+<li>为什么要对摘要加密后再发送？为什么不直接发摘要？摘要不可以逆向推导原文，摘要泄露了也没事……</li>
+</ol>
+<ul>
+<li>答：摘要泄露是没事，但不怀好意的人的目的可能并不在想要窃听你发送了什么，而是想<strong>伪造发送的内容</strong>让你相信。通过同时替换摘要和内容，很简单就实现了。所以摘要需要经过加密，不怀好意的人没有私钥，无法完成加密。或者说你收到的东西只要能用公钥解密，你才认为这个东西确实是对应私钥持有者完成的。这叫做当事人不可抵赖，同时别人无法仿冒。（数字签名：不可抵赖+无法仿冒）</li>
+</ul>
+<ol start="2">
+<li>为什么不直接对内容加密，而是先生成摘要，对摘要加密？</li>
+</ol>
+<ul>
+<li>答：可能是<strong>内容很长</strong>吧，直接加密算半天！摘要算法可以把无限长的内容输出成长度固定的摘要，再进行加密时间就是可以预估的</li>
+</ul>
+<h2 id="数字证书-digital-certificate"><a href="#数字证书-digital-certificate" class="headerlink" title="数字证书(digital certificate)"></a>数字证书(digital certificate)</h2><ul>
+<li><p><strong>数字签名</strong>很完美，你用公钥能够解密，说明确实是私钥方发送的，你很放心……但有没有想过，万一这把<strong>公钥</strong>本身，就被人做了手脚？？？ <strong>为了保证“公钥”是可信的</strong>，数字证书应运而生。<strong>发送方先把自己的公钥给CA</strong>，CA用CA的私钥和CA加密算法 对其进行加密得到加密后的发送方公钥，用于生成CA的数字证书。</p>
+</li>
+<li><p>发送时不仅发送内容、数字签名，还包含发送方的数字证书。</p>
+</li>
+<li><p>接收方拿到后</p>
+<ol>
+<li>首先从数字证书中解密出发送方公钥（<strong>用的是CA的公钥和CA解密算法</strong>），这个公钥必然是可信的。</li>
+<li>然后就是和前面一样的流程，拿发送方公钥去解密数字签名，得到摘要；最后比对摘要是否一致。</li>
+</ol>
+</li>
+</ul>
+<ul>
+<li><p>一个问题：既然数字证书是为了保证发送方公钥不是别人伪造的，那怎么保证“CA”的公钥不是伪造的呢？</p>
+</li>
+<li><p>答：CA是第三方机构，<strong>CA公钥是公开的</strong>，接收方可以跟别人比对（比如在网上查询），因此不可能伪造。但是发送方公钥，接收方是<strong>通过通信得到</strong>的，收到后无法验证。</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>Donate comment here.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Cwww3 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag"># 密码学</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/10/LRU/" rel="prev" title="LRU">
+      <i class="fa fa-chevron-left"></i> LRU
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/04/12/regexp/" rel="next" title="正则表达式">
+      正则表达式 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E5%B8%8C"><span class="nav-number">1.</span> <span class="nav-text">哈希</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E9%80%94"><span class="nav-number">1.2.</span> <span class="nav-text">用途</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%BA%94%E7%94%A8"><span class="nav-number">1.3.</span> <span class="nav-text">具体应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%80%A7"><span class="nav-number">1.4.</span> <span class="nav-text">安全性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86"><span class="nav-number">2.</span> <span class="nav-text">对称加密</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89-1"><span class="nav-number">2.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E9%80%94-1"><span class="nav-number">2.2.</span> <span class="nav-text">用途</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%BA%94%E7%94%A8-1"><span class="nav-number">2.3.</span> <span class="nav-text">具体应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E6%96%B9%E5%BC%8F"><span class="nav-number">2.4.</span> <span class="nav-text">加密方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A1%AB%E5%85%85"><span class="nav-number">2.5.</span> <span class="nav-text">填充</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86"><span class="nav-number">3.</span> <span class="nav-text">非对称加密</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89-2"><span class="nav-number">3.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E9%80%94-2"><span class="nav-number">3.2.</span> <span class="nav-text">用途</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%BA%94%E7%94%A8-2"><span class="nav-number">3.3.</span> <span class="nav-text">具体应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%80%A7-1"><span class="nav-number">3.4.</span> <span class="nav-text">安全性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D"><span class="nav-number">3.5.</span> <span class="nav-text">数字签名</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6-digital-certificate"><span class="nav-number">4.</span> <span class="nav-text">数字证书(digital certificate)</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Cwww3"
+      src="/images/my-avatar.png">
+  <p class="site-author-name" itemprop="name">Cwww3</p>
+  <div class="site-description" itemprop="description">Record what you think</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/cwww3" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/15761669/cwww3" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;15761669&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cwww3</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'YhdC1c2cA0bpuapj4ksny0W9-gzGzoHsz',
+      appKey     : 'TIwAfWuWHudJm4hWreg0vUKo',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
