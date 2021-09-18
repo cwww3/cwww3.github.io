@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Go1234# 安装go get github.com&#x2F;prometheus&#x2F;client_golang&#x2F;prometheusgo get github.com&#x2F;prometheus&#x2F;client_golang&#x2F;prometheus&#x2F;promautogo get github.com&#x2F;prometheus&#x2F;client_golang&#x2F;prometheus&#x2F;promhttp">
+<meta property="og:type" content="article">
+<meta property="og:title" content="prometheus">
+<meta property="og:url" content="https://cwww3.github.io/2021/09/18/prometheus/index.html">
+<meta property="og:site_name" content="Cwww3&#39;s Blog">
+<meta property="og:description" content="Go1234# 安装go get github.com&#x2F;prometheus&#x2F;client_golang&#x2F;prometheusgo get github.com&#x2F;prometheus&#x2F;client_golang&#x2F;prometheus&#x2F;promautogo get github.com&#x2F;prometheus&#x2F;client_golang&#x2F;prometheus&#x2F;promhttp">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20210916094823568.png">
+<meta property="article:published_time" content="2021-09-18T07:47:23.000Z">
+<meta property="article:modified_time" content="2021-09-18T07:47:53.122Z">
+<meta property="article:author" content="Cwww3">
+<meta property="article:tag" content="运维">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20210916094823568.png">
+
+<link rel="canonical" href="https://cwww3.github.io/2021/09/18/prometheus/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>prometheus | Cwww3's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Cwww3's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Cwww3's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Record what you think</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2021/09/18/prometheus/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/my-avatar.png">
+      <meta itemprop="name" content="Cwww3">
+      <meta itemprop="description" content="Record what you think">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cwww3's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          prometheus
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-09-18 15:47:23 / 修改时间：15:47:53" itemprop="dateCreated datePublished" datetime="2021-09-18T15:47:23+08:00">2021-09-18</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2021/09/18/prometheus/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/09/18/prometheus/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Go"><a href="#Go" class="headerlink" title="Go"></a>Go</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 安装</span></span><br><span class="line">go get github.com/prometheus/client_golang/prometheus</span><br><span class="line">go get github.com/prometheus/client_golang/prometheus/promauto</span><br><span class="line">go get github.com/prometheus/client_golang/prometheus/promhttp</span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">        <span class="string">&quot;net/http&quot;</span></span><br><span class="line"></span><br><span class="line">        <span class="string">&quot;github.com/prometheus/client_golang/prometheus/promhttp&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">        http.Handle(<span class="string">&quot;/metrics&quot;</span>, promhttp.Handler())</span><br><span class="line">        http.ListenAndServe(<span class="string">&quot;:2112&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 执行</span></span><br><span class="line">go run main.go</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 访问</span></span><br><span class="line">curl http://localhost:2112/metrics</span><br></pre></td></tr></table></figure>
+
+<p>上述示例展示如何使用 Prometheus Golang 库来暴露应用的指标数据，但暴露的监控指标数据为文本类型，需要搭建维护额外的 Prometheus 服务来抓取指标，还需要额外的 Grafana 来对数据进行可视化展示。</p>
+<h2 id="Prometheus"><a href="#Prometheus" class="headerlink" title="Prometheus"></a>Prometheus</h2><h4 id="Prometheus下载"><a href="#Prometheus下载" class="headerlink" title="Prometheus下载"></a>Prometheus下载</h4><p><a target="_blank" rel="noopener" href="https://prometheus.io/download/">下载地址</a></p>
+<p>解压后当前目录会包含默认的Prometheus配置文件promethes.yml</p>
+<p>启动完成后，可以通过<a href="http://localhost:9090访问Prometheus的UI界面">http://localhost:9090访问Prometheus的UI界面</a></p>
+<h4 id="Node-Exporter下载"><a href="#Node-Exporter下载" class="headerlink" title="Node Exporter下载"></a>Node Exporter下载</h4><p>在Prometheus的架构设计中，Prometheus Server并不直接服务监控特定的目标，其主要任务负责数据的收集，存储并且对外提供数据查询支持。因此为了能够能够监控到某些东西，如主机的CPU使用率，我们需要使用到Exporter。Prometheus周期性的从Exporter暴露的HTTP服务地址（通常是/metrics）拉取监控样本数据。</p>
+<p>从上面的描述中可以看出Exporter可以是一个相对开放的概念，其可以是一个独立运行的程序独立于监控目标以外，也可以是直接内置在监控目标中。只要能够向Prometheus提供标准格式的监控样本数据即可。</p>
+<p>这里为了能够采集到主机的运行指标如CPU, 内存，磁盘等信息。我们可以使用<a target="_blank" rel="noopener" href="https://github.com/prometheus/node_exporter">Node Exporter</a>。</p>
+<p>Node Exporter同样采用Golang编写，并且不存在任何的第三方依赖，只需要下载，解压即可运行。可以从<a target="_blank" rel="noopener" href="https://prometheus.io/download/%E8%8E%B7%E5%8F%96%E6%9C%80%E6%96%B0%E7%9A%84node">https://prometheus.io/download/获取最新的node</a> exporter版本的二进制包。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 解压启动后访问 http://localhost:9100</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="从Node-Exporter收集监控数据"><a href="#从Node-Exporter收集监控数据" class="headerlink" title="从Node Exporter收集监控数据"></a>从Node Exporter收集监控数据</h4><p>为了能够让Prometheus Server能够从当前node exporter获取到监控数据，这里需要修改Prometheus配置文件。编辑prometheus.yml并在scrape_configs节点下添加以下内容:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">scrape_configs:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&#x27;prometheus&#x27;</span></span><br><span class="line">    <span class="attr">static_configs:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">targets:</span> [<span class="string">&#x27;localhost:9090&#x27;</span>]</span><br><span class="line">  <span class="comment"># 采集node exporter监控数据</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">job_name:</span> <span class="string">&#x27;node&#x27;</span></span><br><span class="line">    <span class="attr">static_configs:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">targets:</span> [<span class="string">&#x27;localhost:9100&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>重新启动Prometheus Server。访问<a target="_blank" rel="noopener" href="http://localhost:9090/">http://localhost:9090</a>，进入到Prometheus Server。如果输入<code>up</code>并且点击执行按钮以后，可以看到如下结果：</p>
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20210916094823568.png" alt="image-20210916094823568" style="zoom:50%;" />
+
+<h4 id="Prometheus-UI"><a href="#Prometheus-UI" class="headerlink" title="Prometheus UI"></a>Prometheus UI</h4><p>Prometheus UI是Prometheus内置的一个可视化管理界面，通过Prometheus UI用户能够轻松的了解Prometheus当前的配置，监控任务运行状态等。 通过<code>Graph</code>面板，用户还能直接使用<code>PromQL</code>实时查询监控数据</p>
+<h4 id="PromQL"><a href="#PromQL" class="headerlink" title="PromQL"></a>PromQL</h4><p>PromQL是Prometheus自定义的一套强大的数据查询语言，除了使用监控指标作为查询关键字以为，还内置了大量的函数，帮助用户进一步对时序数据进行处理。</p>
+<h2 id="Grafana"><a href="#Grafana" class="headerlink" title="Grafana"></a>Grafana</h2><p>Grafana 是一个监控仪表系统，它可以大大帮助你简化监控的复杂度，你只需要提供你需要监控的数据，它就可以帮你生成各种可视化仪表。同时它还有报警功能，可以在系统出现问题时通知你。</p>
+<h4 id="Docker安装运行"><a href="#Docker安装运行" class="headerlink" title="Docker安装运行"></a>Docker安装运行</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -p 3000:3000 grafana/grafana</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 访问 http://localhost:3000  </span><br><span class="line">2. 登录 账号密码默认admin。</span><br><span class="line">3. 在数据源中添加prometheus类型。 数据源URL为http://localhost:9090</span><br><span class="line">4. 新建dashboard进行数据分析</span><br></pre></td></tr></table></figure>
+
+
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>Donate comment here.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Cwww3 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%BF%90%E7%BB%B4/" rel="tag"># 运维</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/06/GoQuestion/" rel="prev" title="GoQuestion">
+      <i class="fa fa-chevron-left"></i> GoQuestion
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Go"><span class="nav-number">1.</span> <span class="nav-text">Go</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Prometheus"><span class="nav-number">2.</span> <span class="nav-text">Prometheus</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Prometheus%E4%B8%8B%E8%BD%BD"><span class="nav-number">2.0.1.</span> <span class="nav-text">Prometheus下载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Node-Exporter%E4%B8%8B%E8%BD%BD"><span class="nav-number">2.0.2.</span> <span class="nav-text">Node Exporter下载</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8ENode-Exporter%E6%94%B6%E9%9B%86%E7%9B%91%E6%8E%A7%E6%95%B0%E6%8D%AE"><span class="nav-number">2.0.3.</span> <span class="nav-text">从Node Exporter收集监控数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Prometheus-UI"><span class="nav-number">2.0.4.</span> <span class="nav-text">Prometheus UI</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PromQL"><span class="nav-number">2.0.5.</span> <span class="nav-text">PromQL</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Grafana"><span class="nav-number">3.</span> <span class="nav-text">Grafana</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Docker%E5%AE%89%E8%A3%85%E8%BF%90%E8%A1%8C"><span class="nav-number">3.0.1.</span> <span class="nav-text">Docker安装运行</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Cwww3"
+      src="/images/my-avatar.png">
+  <p class="site-author-name" itemprop="name">Cwww3</p>
+  <div class="site-description" itemprop="description">Record what you think</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/cwww3" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/15761669/cwww3" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;15761669&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cwww3</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'YhdC1c2cA0bpuapj4ksny0W9-gzGzoHsz',
+      appKey     : 'TIwAfWuWHudJm4hWreg0vUKo',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
