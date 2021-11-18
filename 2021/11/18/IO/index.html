@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="I&#x2F;O流 可以进行I&#x2F;O操作的内核对象  文件、管道、套接字等都是流  流的入口：文件描述符(fd)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IO">
+<meta property="og:url" content="https://cwww3.github.io/2021/11/18/IO/index.html">
+<meta property="og:site_name" content="Cwww3&#39;s Blog">
+<meta property="og:description" content="I&#x2F;O流 可以进行I&#x2F;O操作的内核对象  文件、管道、套接字等都是流  流的入口：文件描述符(fd)">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118105721114.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118103446987.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118105303658.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118110037961.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118110236775.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118110908521.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118110819248.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118111021556.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118111811931.png">
+<meta property="article:published_time" content="2021-11-18T03:22:05.000Z">
+<meta property="article:modified_time" content="2021-11-18T03:22:39.818Z">
+<meta property="article:author" content="Cwww3">
+<meta property="article:tag" content="IO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118105721114.png">
+
+<link rel="canonical" href="https://cwww3.github.io/2021/11/18/IO/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>IO | Cwww3's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Cwww3's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Cwww3's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Record what you think</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2021/11/18/IO/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/my-avatar.png">
+      <meta itemprop="name" content="Cwww3">
+      <meta itemprop="description" content="Record what you think">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cwww3's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          IO
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-11-18 11:22:05 / 修改时间：11:22:39" itemprop="dateCreated datePublished" datetime="2021-11-18T11:22:05+08:00">2021-11-18</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2021/11/18/IO/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/11/18/IO/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="I-O"><a href="#I-O" class="headerlink" title="I/O"></a>I/O</h2><h3 id="流"><a href="#流" class="headerlink" title="流"></a>流</h3><ul>
+<li><p>可以进行I/O操作的内核对象</p>
+</li>
+<li><p>文件、管道、套接字等都是流</p>
+</li>
+<li><p>流的入口：文件描述符(fd)</p>
+<span id="more"></span>
+<h3 id="I-O操作"><a href="#I-O操作" class="headerlink" title="I/O操作"></a>I/O操作</h3></li>
+<li><p>对流的读写操作称为I/O操作</p>
+</li>
+</ul>
+<h3 id="同步异步"><a href="#同步异步" class="headerlink" title="同步异步"></a>同步异步</h3><ul>
+<li>同步就是发起一个调用后，被调用者未处理完请求之前，调用不返回。</li>
+<li>异步就是发一个调用后，立刻得到被调用者的回应表示已接收到请求，但是被调用者并没有返回结果，此时可以处理其他的请求，被调用者通常依靠事件、回调等机制来通知调用者其返回结果。</li>
+</ul>
+<h3 id="阻塞和非阻塞"><a href="#阻塞和非阻塞" class="headerlink" title="阻塞和非阻塞"></a>阻塞和非阻塞</h3><ul>
+<li>阻塞就是发起一个请求，调用者一直等待请求结果返回，也就是当前线程会被挂起，无法从事其他任务，只有当条件就绪才能继续。不占用CPU资源。</li>
+<li>非阻塞就是发起一个请求，调用者不用一直等着结果返回，可以先去干其他的事情。占用CPU资源(轮询)</li>
+</ul>
+<h3 id="同步异步与阻塞非阻塞"><a href="#同步异步与阻塞非阻塞" class="headerlink" title="同步异步与阻塞非阻塞"></a>同步异步与阻塞非阻塞</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 老张烧开水的故事</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 老张爱喝茶，废话不说，煮开水。</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 出场人物：老张，水壶两把（普通水壶，简称水壶；会响的水壶，简称响水壶）。</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 同步阻塞</span></span><br><span class="line">老张把水壶放到火上，立等水开。</span><br><span class="line">老张觉得自己有点傻</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 同步非阻塞</span></span><br><span class="line">老张把水壶放到火上，去客厅看电视，时不时去厨房看看水开没有。</span><br><span class="line">老张还是觉得自己有点傻，于是变高端了，买了把会响笛的那种水壶。水开之后，能大声发出嘀~~的噪音。</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 异步阻塞</span></span><br><span class="line">老张把响水壶放到火上，立等水开。</span><br><span class="line">老张觉得这样傻等意义不大</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 异步非阻塞</span></span><br><span class="line">老张把响水壶放到火上，去客厅看电视，水壶响之前不再去看它了，响了再去拿壶。</span><br><span class="line">老张觉得自己聪明了。</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 所谓同步异步，只是对于水壶而言</span></span><br><span class="line">普通水壶：同步；响水壶：异步。</span><br><span class="line">虽然都能干活，但响水壶可以在自己完工之后，提示老张水开了，这是普通水壶所不能及的。</span><br><span class="line">同步只能让调用者去轮询自己（情况2中），造成老张效率的低下。</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 所谓阻塞非阻塞，仅仅对于老张而言</span></span><br><span class="line">立等的老张：阻塞；看电视的老张：非阻塞。</span><br><span class="line">虽然情况3中响水壶是异步的，可对于立等的老张没有太大的意义。所以一般异步是配合非阻塞使用的，这样才能发挥异步的效用。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="阻塞IO-Blocking-IO"><a href="#阻塞IO-Blocking-IO" class="headerlink" title="阻塞IO - Blocking IO"></a>阻塞IO - Blocking IO</h3><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118105721114.png" alt="image-20211118105721114" style="zoom:33%;" />
+
+<ul>
+<li>一请求一应答</li>
+<li>通常由一个独立的 <code>Acceptor</code> 线程负责监听客户端的连接。我们一般通过在 <code>while(true)</code> 循环中服务端会调用 <code>accept()</code> 方法等待客户端连接的方式监听请求，请求一旦接收到一个连接请求，就可以建立通信套接字在这个通信套接字上进行读写操作，此时不能再接收其他客户端连接请求，只能等待当前连接的客户端的操作执行完成，不过可以<strong>通过多线程来支持多个客户端的连接</strong></li>
+</ul>
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118103446987.png" alt="image-20211118103446987" style="zoom: 33%;" />
+
+<h3 id="伪异步-I-O"><a href="#伪异步-I-O" class="headerlink" title="伪异步 I/O"></a>伪异步 I/O</h3><p>当客户端并发访问量增加后<strong>阻塞IO模型</strong>会出随着并发访问量增加会导致线程数急剧膨胀可能会导致线程堆栈溢出、创建新线程失败等问题，最终导致进程宕机或者僵死，不能对外提供服务。</p>
+<p>线程是宝贵的资源。线程的创建和销毁成本很高，线程本身占用较大内存，线程的切换成本也很高，容易造成锯齿状的系统负载。</p>
+<ul>
+<li>解决方案</li>
+</ul>
+<p>后端通过一个线程池来处理多个客户端的请求接入，设置线程的最大值，防止由于海量并发接入导致线程耗尽。</p>
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118105303658.png" alt="image-20211118105303658" style="zoom:33%;" />
+
+
+
+
+
+<h3 id="非阻塞IO-NoneBlocking-IO"><a href="#非阻塞IO-NoneBlocking-IO" class="headerlink" title="非阻塞IO - NoneBlocking IO"></a>非阻塞IO - NoneBlocking IO</h3><p>当用户线程发起一个 IO 操作后，并不需要等待，而是马上就得到一个结果。如果结果是一个 error 时，它就知道数据还没有准备好，于是它可以再次发送 IO 操作。一旦内核中的数据准备好了，并且又再次收到了用户线程的请求，那么它马上就将数据拷贝到了用户线程，然后返回。</p>
+<p>在非阻塞IO 模型中，用户线程需要不断地询问内核数据是否就绪，也就说非阻塞IO不会交出CPU，而会一直占用CPU。</p>
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118110037961.png" alt="image-20211118110037961" style="zoom:33%;" />
+
+<ul>
+<li>非阻塞式主要体现在用户进程发起recvfrom系统调用的时候,这个时候系统内核还没有接收到数据报,直接返回错误给用户进程,告诉“当前还没有数据报可达,晚点再来”</li>
+<li>用户进程接收到信息,但是用户进程不知道什么时候数据报可达,于是就开始不断轮询(polling)向系统内核发起recvfrom的系统调用“询问数据来了没”,如果没有则继续返回错误</li>
+<li>用户进程轮询发起recvfrom系统调用直至数据报可达,这个时候需要等待系统内核复制数据报到用户进程的缓冲区,复制完成之后将返回成功提示</li>
+</ul>
+<h3 id="IO多路复用-IO-multiplexing"><a href="#IO多路复用-IO-multiplexing" class="headerlink" title="IO多路复用 - IO multiplexing"></a>IO多路复用 - IO multiplexing</h3><p>所谓 I/O 多路复用机制，就是说通过一种机制，可以监视多个描述符，一旦某个描述符就绪（一般是读就绪或写就绪），能够通知程序进行相应的读写操作。这种机制的使用需要 <code>select</code> 、 <code>poll</code> 、 <code>epoll</code> 来配合。</p>
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118110236775.png" alt="image-20211118110236775" style="zoom:33%;" />
+
+<p>在多路复用IO模型中，会有一个内核线程不断地去轮询多个 socket 的状态，只有当真正读写事件发送时，才真正调用实际的IO读写操作。<strong>因为在多路复用IO模型中，只需要使用一个线程就可以管理多个socket，系统不需要建立新的进程或者线程，也不必维护这些线程和进程，并且只有真正有读写事件进行时，才会使用IO资源，所以它大大减少来资源占用</strong>。</p>
+<ul>
+<li>IO复用模式是使用select或者poll函数向系统内核发起调用，阻塞在这两个系统函数调用，而不是真正阻塞于实际的IO操作(recvfrom调用才是实际阻塞IO操作的系统调用)</li>
+<li>阻塞于select函数的调用,等待数据报套接字变为可读状态</li>
+<li>当select套接字返回可读状态的时候,就可以发起recvfrom调用把数据报复制到用户空间的缓冲区</li>
+</ul>
+<h3 id="信号驱动IO-signal-driven-IO"><a href="#信号驱动IO-signal-driven-IO" class="headerlink" title="信号驱动IO - signal driven IO"></a>信号驱动IO - signal driven IO</h3><p>在信号驱动IO模型中，当用户线程发起一个IO请求操作，会给对应的socket注册一个信号函数，然后用户线程会继续执行，当内核数据就绪时会发送一个信号给用户线程，用户线程接收到信号后，便在信号函数中调用IO读写操作来进行实际的IO请求操作。这个一般用于UDP中，对TCP套接字几乎没用，原因是该信号产生得过于频繁，并且该信号的出现并没有告诉我们发生了什么请求。</p>
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118110908521.png" alt="image-20211118110908521" style="zoom:33%;" />
+
+<h3 id="异步IO-asynchronous-IO"><a href="#异步IO-asynchronous-IO" class="headerlink" title="异步IO - asynchronous IO"></a>异步IO - asynchronous IO</h3><p>前面四种IO模型实际上都属于同步IO，只有最后一种是真正的异步IO，因为无论是多路复用IO还是信号驱动模型，IO操作的第2个阶段都会引起用户线程阻塞，也就是从内核拷贝数据到用户态的过程都会让用户线程阻塞。</p>
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118110819248.png" alt="image-20211118110819248" style="zoom:33%;" />
+
+<ul>
+<li>由POSIX规范定义，告知系统内核启动某个操作，并让内核在整个操作包含数据等待以及数据复制过程的完成之后通知用户进程数据已经准备完成，可以进行读取数据；</li>
+<li>与上述的信号IO模型区分在于异步是通知我们何时IO操作完成,而信号IO是通知我们何时可以启动一个IO操作</li>
+</ul>
+<h3 id="IO模型对比"><a href="#IO模型对比" class="headerlink" title="IO模型对比"></a>IO模型对比</h3><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118111021556.png" alt="image-20211118111021556" style="zoom:33%;" />
+
+
+
+<h2 id="处理多I-O请求"><a href="#处理多I-O请求" class="headerlink" title="处理多I/O请求"></a>处理多I/O请求</h2><p><strong>阻塞+多进程/多线程</strong></p>
+<p><strong>非阻塞+轮询</strong></p>
+<p><strong>多路复用</strong></p>
+<ul>
+<li>select  最多监听1024个 且不会通知具体哪个流接收到数据  需要遍历全部流，进行处理。  平台无关性。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> &#123;</span><br><span class="line">    <span class="keyword">select</span>() <span class="comment">//阻塞</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> _, in := ins &#123;</span><br><span class="line">        <span class="keyword">if</span> has &#123;</span><br><span class="line">            <span class="comment">// 处理</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>poll本质上和select没有区别，它将用户传入的数组拷贝到内核空间，然后查询每个fd对应的设备状态， <strong>但是它没有最大连接数的限制</strong>，原因是它是基于链表来存储的.</p>
+</li>
+<li><p>epoll  监听的数量与操作系统能打开的文件数相同，且返回收到数据的流。不同于忙轮询和无差别轮询，epoll会把哪个流发生了怎样的I/O事件通知我们。Linux操作系统的方法。</p>
+</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> &#123;</span><br><span class="line">    ins = epoll() <span class="comment">//阻塞 </span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> _, in := ins &#123;</span><br><span class="line">          <span class="comment">// 处理</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20211118111811931.png" alt="image-20211118111811931" style="zoom:33%;" /></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>Donate comment here.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Cwww3 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/IO/" rel="tag"># IO</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/05/docker-file/" rel="prev" title="Dockerfile">
+      <i class="fa fa-chevron-left"></i> Dockerfile
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#I-O"><span class="nav-number">1.</span> <span class="nav-text">I&#x2F;O</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81"><span class="nav-number">1.1.</span> <span class="nav-text">流</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#I-O%E6%93%8D%E4%BD%9C"><span class="nav-number">1.2.</span> <span class="nav-text">I&#x2F;O操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E5%BC%82%E6%AD%A5"><span class="nav-number">1.3.</span> <span class="nav-text">同步异步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%BB%E5%A1%9E%E5%92%8C%E9%9D%9E%E9%98%BB%E5%A1%9E"><span class="nav-number">1.4.</span> <span class="nav-text">阻塞和非阻塞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E5%BC%82%E6%AD%A5%E4%B8%8E%E9%98%BB%E5%A1%9E%E9%9D%9E%E9%98%BB%E5%A1%9E"><span class="nav-number">1.5.</span> <span class="nav-text">同步异步与阻塞非阻塞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%BB%E5%A1%9EIO-Blocking-IO"><span class="nav-number">1.6.</span> <span class="nav-text">阻塞IO - Blocking IO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%AA%E5%BC%82%E6%AD%A5-I-O"><span class="nav-number">1.7.</span> <span class="nav-text">伪异步 I&#x2F;O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E9%98%BB%E5%A1%9EIO-NoneBlocking-IO"><span class="nav-number">1.8.</span> <span class="nav-text">非阻塞IO - NoneBlocking IO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8-IO-multiplexing"><span class="nav-number">1.9.</span> <span class="nav-text">IO多路复用 - IO multiplexing</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E9%A9%B1%E5%8A%A8IO-signal-driven-IO"><span class="nav-number">1.10.</span> <span class="nav-text">信号驱动IO - signal driven IO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5IO-asynchronous-IO"><span class="nav-number">1.11.</span> <span class="nav-text">异步IO - asynchronous IO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IO%E6%A8%A1%E5%9E%8B%E5%AF%B9%E6%AF%94"><span class="nav-number">1.12.</span> <span class="nav-text">IO模型对比</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E5%A4%9AI-O%E8%AF%B7%E6%B1%82"><span class="nav-number">2.</span> <span class="nav-text">处理多I&#x2F;O请求</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Cwww3"
+      src="/images/my-avatar.png">
+  <p class="site-author-name" itemprop="name">Cwww3</p>
+  <div class="site-description" itemprop="description">Record what you think</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/cwww3" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/15761669/cwww3" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;15761669&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cwww3</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'YhdC1c2cA0bpuapj4ksny0W9-gzGzoHsz',
+      appKey     : 'TIwAfWuWHudJm4hWreg0vUKo',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
