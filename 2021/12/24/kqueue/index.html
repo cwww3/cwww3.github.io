@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="使用Kqueue实现简单的TCP服务器项目地址 设计TCP服务器由TCP socker，来自客户端连接的socker，kqueue以及轮询kqueue的event loop 组成。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kqueue">
+<meta property="og:url" content="https://cwww3.github.io/2021/12/24/kqueue/index.html">
+<meta property="og:site_name" content="Cwww3&#39;s Blog">
+<meta property="og:description" content="使用Kqueue实现简单的TCP服务器项目地址 设计TCP服务器由TCP socker，来自客户端连接的socker，kqueue以及轮询kqueue的event loop 组成。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211223235715574.png">
+<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211224000209004.png">
+<meta property="article:published_time" content="2021-12-23T17:06:14.000Z">
+<meta property="article:modified_time" content="2021-12-23T17:09:56.810Z">
+<meta property="article:author" content="Cwww3">
+<meta property="article:tag" content="Golang Interview Algorithm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/captain233/picture/raw/master/image-20211223235715574.png">
+
+<link rel="canonical" href="https://cwww3.github.io/2021/12/24/kqueue/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>kqueue | Cwww3's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Cwww3's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Cwww3's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Record what you think</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2021/12/24/kqueue/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/my-avatar.png">
+      <meta itemprop="name" content="Cwww3">
+      <meta itemprop="description" content="Record what you think">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cwww3's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          kqueue
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-12-24 01:06:14 / 修改时间：01:09:56" itemprop="dateCreated datePublished" datetime="2021-12-24T01:06:14+08:00">2021-12-24</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2021/12/24/kqueue/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/12/24/kqueue/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="使用Kqueue实现简单的TCP服务器"><a href="#使用Kqueue实现简单的TCP服务器" class="headerlink" title="使用Kqueue实现简单的TCP服务器"></a>使用Kqueue实现简单的TCP服务器</h2><p><a target="_blank" rel="noopener" href="https://github.com/FRosner/FrSrv">项目地址</a></p>
+<h3 id="设计"><a href="#设计" class="headerlink" title="设计"></a>设计</h3><p>TCP服务器由TCP socker，来自客户端连接的socker，kqueue以及轮询kqueue的event loop 组成。</p>
+<p><img src="https://gitee.com/captain233/picture/raw/master/image-20211223235715574.png" alt="image-20211223235715574"></p>
+<span id="more"></span>
+
+<p>当一个客户端想要连接服务器，连接请求会被放入TCP连接队列。内核会将该事件放入kqueue，然后event loop轮询kqueue获取该事件，并创建一个新的客户端socket。</p>
+<p><img src="https://gitee.com/captain233/picture/raw/master/image-20211224000209004.png" alt="image-20211224000209004"></p>
+<p>当客户端写入数据，内核会将该事件放入kqueue，然后event loop轮询获取该事件，获取到socket，并从这个socker中读取数据。</p>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><ol>
+<li>Create, bind, and listen on a new socket</li>
+<li>Create new kqueue</li>
+<li>Subscribe to socket events</li>
+<li>Poll for new events in a loop and handle them</li>
+</ol>
+<p>socket模块用于封装socket相关的所用功能，kqueue模块用于封装event loop的所用功能。</p>
+<p>在main模块中调用他们，实现tcp服务。</p>
+<h4 id="socket"><a href="#socket" class="headerlink" title="socket"></a>socket</h4><p>用Go类型定义一个Socket，需要将文件描述符进行保存。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Socket <span class="keyword">struct</span> &#123;</span><br><span class="line">  FileDescriptor <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现读io.Reader，写io.Writer，关闭io.Closer等接口。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(socket Socket)</span> <span class="title">Read</span><span class="params">(bytes []<span class="keyword">byte</span>)</span> <span class="params">(<span class="keyword">int</span>, error)</span></span> &#123;</span><br><span class="line">  <span class="keyword">if</span> <span class="built_in">len</span>(bytes) == <span class="number">0</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>, <span class="literal">nil</span></span><br><span class="line">  &#125;</span><br><span class="line">  numBytesRead, err := </span><br><span class="line">    syscall.Read(socket.FileDescriptor, bytes)</span><br><span class="line">  <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    numBytesRead = <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> numBytesRead, err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(socket Socket)</span> <span class="title">Write</span><span class="params">(bytes []<span class="keyword">byte</span>)</span> <span class="params">(<span class="keyword">int</span>, error)</span></span> &#123;</span><br><span class="line">  numBytesWritten, err := </span><br><span class="line">    syscall.Write(socket.FileDescriptor, bytes)</span><br><span class="line">  <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    numBytesWritten = <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> numBytesWritten, err</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(socket *Socket)</span> <span class="title">Close</span><span class="params">()</span> <span class="title">error</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> syscall.Close(socket.FileDescriptor)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(socket *Socket)</span> <span class="title">String</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">  <span class="keyword">return</span> strconv.Itoa(socket.FileDescriptor)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据提供的ip和端口，创建并监听</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Listen</span><span class="params">(ip <span class="keyword">string</span>, port <span class="keyword">int</span>)</span> <span class="params">(*Socket, error)</span></span> &#123;</span><br><span class="line">  <span class="comment">// 1. 创建套接字</span></span><br><span class="line">  socket := &amp;Socket&#123;&#125;</span><br><span class="line">	<span class="comment">// AF_INET 表示IPV4	</span></span><br><span class="line">  <span class="comment">// SOCK_STREAM 表示有序的、可靠的、基于双向连接的字节流</span></span><br><span class="line">  <span class="comment">// 0在SOCK_STREAM套接字中表示TCP</span></span><br><span class="line">  socketFileDescriptor, err := </span><br><span class="line">    syscall.Socket(syscall.AF_INET, syscall.SOCK_STREAM, <span class="number">0</span>)</span><br><span class="line">  <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;failed to create socket (%v)&quot;</span>, err)</span><br><span class="line">  &#125;</span><br><span class="line">  socket.FileDescriptor = socketFileDescriptor</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. 绑定ip和端口</span></span><br><span class="line">  socketAddress := &amp;syscall.SockaddrInet4&#123;Port: port&#125;</span><br><span class="line">  <span class="built_in">copy</span>(socketAddress.Addr[:], net.ParseIP(ip))</span><br><span class="line">  <span class="keyword">if</span> err = syscall.Bind(socket.FileDescriptor, socketAddress);</span><br><span class="line">    err != <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;failed to bind socket (%v)&quot;</span>, err)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 3. 开始监听,接收连接请求 SOMAXCONN设置最大等待的连接数</span></span><br><span class="line">  <span class="keyword">if</span> err = syscall.Listen(socket.FileDescriptor, syscall.SOMAXCONN);</span><br><span class="line">    err != <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>, fmt.Errorf(<span class="string">&quot;failed to listen on socket (%v)&quot;</span>, err)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> socket, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="kqueue"><a href="#kqueue" class="headerlink" title="kqueue"></a>kqueue</h4><p>定义一个EventLoop结构体</p>
+<p>分别保存kqueue文件描述符以及用于监听客户端连接的套接字文件描述符</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> EventLoop <span class="keyword">struct</span> &#123;</span><br><span class="line">  KqueueFileDescriptor <span class="keyword">int</span></span><br><span class="line">  SocketFileDescriptor <span class="keyword">int</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>定义一个创建EventLoop的函数</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewEventLoop</span><span class="params">(s *socket.Socket)</span> <span class="params">(*EventLoop, error)</span></span> &#123;</span><br><span class="line">  <span class="comment">// 创建kqueue,返回对应的文件描述符</span></span><br><span class="line">  kQueue, err := syscall.Kqueue()</span><br><span class="line">  <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>, </span><br><span class="line">      fmt.Errorf(<span class="string">&quot;failed to create kqueue file descriptor (%v)&quot;</span>, err)</span><br><span class="line">  &#125;</span><br><span class="line">	<span class="comment">// 定义监听的事件类型以及处理方法</span></span><br><span class="line">  <span class="comment">// Ident设置创建的socket文件描述符</span></span><br><span class="line">  <span class="comment">// Filter 设置成EVFILT_READ表示对传入的连接事件感兴趣</span></span><br><span class="line">  <span class="comment">// Flags 设置相应的响应动作 EV_ADD表示添加到kqueue中，EV_ENABLE表示启用</span></span><br><span class="line">  changeEvent := syscall.Kevent_t&#123;</span><br><span class="line">    Ident:  <span class="keyword">uint64</span>(s.FileDescriptor),</span><br><span class="line">    Filter: syscall.EVFILT_READ,</span><br><span class="line">    Flags:  syscall.EV_ADD | syscall.EV_ENABLE,</span><br><span class="line">    Fflags: <span class="number">0</span>,</span><br><span class="line">    Data:   <span class="number">0</span>,</span><br><span class="line">    Udata:  <span class="literal">nil</span>,</span><br><span class="line">  &#125;</span><br><span class="line">	</span><br><span class="line">  <span class="comment">// 将定义的事件类型注册要kqueue上</span></span><br><span class="line">  changeEventRegistered, err := syscall.Kevent(</span><br><span class="line">    kQueue, </span><br><span class="line">    []syscall.Kevent_t&#123;changeEvent&#125;, </span><br><span class="line">    <span class="literal">nil</span>,</span><br><span class="line">    <span class="literal">nil</span></span><br><span class="line">  )</span><br><span class="line">  <span class="keyword">if</span> err != <span class="literal">nil</span> || changeEventRegistered == <span class="number">-1</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>,</span><br><span class="line">      fmt.Errorf(<span class="string">&quot;failed to register change event (%v)&quot;</span>, err)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &amp;EventLoop&#123;</span><br><span class="line">    KqueueFileDescriptor: kQueue,</span><br><span class="line">    SocketFileDescriptor: s.FileDescriptor</span><br><span class="line">  &#125;, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>定义函数对kquue轮询处理</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(eventLoop *EventLoop)</span> <span class="title">Handle</span><span class="params">(handler Handler)</span></span> &#123;</span><br><span class="line">  <span class="keyword">for</span> &#123;</span><br><span class="line">    <span class="comment">// 轮询kqueue获取事件的数量</span></span><br><span class="line">    newEvents := <span class="built_in">make</span>([]syscall.Kevent_t, <span class="number">10</span>)</span><br><span class="line">    numNewEvents, err := syscall.Kevent(</span><br><span class="line">      eventLoop.KqueueFileDescriptor,</span><br><span class="line">      <span class="literal">nil</span>,</span><br><span class="line">      newEvents,</span><br><span class="line">      <span class="literal">nil</span></span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 处理每一个事件</span></span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; numNewEvents; i++ &#123;</span><br><span class="line">      currentEvent := newEvents[i]</span><br><span class="line">      eventFileDescriptor := <span class="keyword">int</span>(currentEvent.Ident)</span><br><span class="line">			</span><br><span class="line">      <span class="keyword">if</span> currentEvent.Flags&amp;syscall.EV_EOF != <span class="number">0</span> &#123;</span><br><span class="line">        <span class="comment">// 客户端关闭事件</span></span><br><span class="line">        syscall.Close(eventFileDescriptor)</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> eventFileDescriptor == eventLoop.SocketFileDescriptor &#123;</span><br><span class="line">        <span class="comment">// 客户端连接事件</span></span><br><span class="line">        socketConnection, _, err := </span><br><span class="line">          syscall.Accept(eventFileDescriptor)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">          <span class="keyword">continue</span></span><br><span class="line">        &#125;</span><br><span class="line">				<span class="comment">// 获取客户端连接请求创建对应的套接字和文件描述符</span></span><br><span class="line">        <span class="comment">// 并定义订阅读事件，注册到kqueue上</span></span><br><span class="line">        socketEvent := syscall.Kevent_t&#123;</span><br><span class="line">          Ident:  <span class="keyword">uint64</span>(socketConnection),</span><br><span class="line">          Filter: syscall.EVFILT_READ,</span><br><span class="line">          Flags:  syscall.EV_ADD,</span><br><span class="line">          Fflags: <span class="number">0</span>,</span><br><span class="line">          Data:   <span class="number">0</span>,</span><br><span class="line">          Udata:  <span class="literal">nil</span>,</span><br><span class="line">        &#125;</span><br><span class="line">        socketEventRegistered, err := syscall.Kevent(</span><br><span class="line">          eventLoop.KqueueFileDescriptor,</span><br><span class="line">          []syscall.Kevent_t&#123;socketEvent&#125;,</span><br><span class="line">          <span class="literal">nil</span>,</span><br><span class="line">          <span class="literal">nil</span></span><br><span class="line">        )</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> || socketEventRegistered == <span class="number">-1</span> &#123;</span><br><span class="line">          <span class="keyword">continue</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> currentEvent.Filter&amp;syscall.EVFILT_READ != <span class="number">0</span> &#123;</span><br><span class="line">        <span class="comment">// 处理已经建立连接的客户端所发来的数据</span></span><br><span class="line">        handler(&amp;socket.Socket&#123;</span><br><span class="line">          FileDescriptor: <span class="keyword">int</span>(eventFileDescriptor)</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// ignore all other events</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="main"><a href="#main" class="headerlink" title="main"></a>main</h4><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">  s, err := socket.Listen(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">8080</span>)</span><br><span class="line">  <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    log.Println(<span class="string">&quot;Failed to create Socket:&quot;</span>, err)</span><br><span class="line">    os.Exit(<span class="number">1</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  eventLoop, err := kqueue.NewEventLoop(s)</span><br><span class="line">  <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    log.Println(<span class="string">&quot;Failed to create event loop:&quot;</span>, err)</span><br><span class="line">    os.Exit(<span class="number">1</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  log.Println(<span class="string">&quot;Server started. Waiting for incoming connections. ^C to exit.&quot;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 定义以建立连接的客户端发来数据时的处理函数</span></span><br><span class="line">  eventLoop.Handle(<span class="function"><span class="keyword">func</span><span class="params">(s *socket.Socket)</span></span> &#123;</span><br><span class="line">    reader := bufio.NewReader(s)</span><br><span class="line">    <span class="keyword">for</span> &#123;</span><br><span class="line">      line, err := reader.ReadString(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">      <span class="keyword">if</span> err != <span class="literal">nil</span> || strings.TrimSpace(line) == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">      &#125;</span><br><span class="line">      s.Write([]<span class="keyword">byte</span>(line))</span><br><span class="line">    &#125;</span><br><span class="line">    s.Close()</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>模拟连接、发送数据、关闭连接</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	c,err := net.Dial(<span class="string">&quot;tcp&quot;</span>,<span class="string">&quot;127.0.0.1:8080&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err!= <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalln(err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> c.Close()</span><br><span class="line">	_,_ = c.Write([]<span class="keyword">byte</span>(<span class="string">&quot;hello world\n&quot;</span>))</span><br><span class="line">	log.Println(<span class="string">&quot;send msg&quot;</span>)</span><br><span class="line">	time.Sleep(time.Second*<span class="number">5</span>)</span><br><span class="line">	log.Println(<span class="string">&quot;client closed&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>Donate comment here.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Cwww3 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/27/HTTPS/" rel="prev" title="HTTPS">
+      <i class="fa fa-chevron-left"></i> HTTPS
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8Kqueue%E5%AE%9E%E7%8E%B0%E7%AE%80%E5%8D%95%E7%9A%84TCP%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">使用Kqueue实现简单的TCP服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.1.</span> <span class="nav-text">设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.2.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#socket"><span class="nav-number">1.2.1.</span> <span class="nav-text">socket</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#kqueue"><span class="nav-number">1.2.2.</span> <span class="nav-text">kqueue</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#main"><span class="nav-number">1.2.3.</span> <span class="nav-text">main</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Cwww3"
+      src="/images/my-avatar.png">
+  <p class="site-author-name" itemprop="name">Cwww3</p>
+  <div class="site-description" itemprop="description">Record what you think</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/cwww3" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/15761669/cwww3" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;15761669&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cwww3</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'YhdC1c2cA0bpuapj4ksny0W9-gzGzoHsz',
+      appKey     : 'TIwAfWuWHudJm4hWreg0vUKo',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
