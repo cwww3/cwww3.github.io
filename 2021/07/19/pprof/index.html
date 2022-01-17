@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="部署 web程序   123import (	_ &quot;net&#x2F;http&#x2F;pprof&quot; &#x2F;&#x2F; 引入 pprof 包)">
+  <meta name="description" content="pprof部署 web程序   123import (	_ &quot;net&#x2F;http&#x2F;pprof&quot; &#x2F;&#x2F; 引入 pprof 包)  12345main() &amp;#123;  ...  fmt.Println(http.ListenAndServe(&quot;localhost:port&quot;, nil))  ...&amp;#125;   对于非web程序   12345678&#x2F;&#x2F; 通">
 <meta property="og:type" content="article">
 <meta property="og:title" content="pprof">
 <meta property="og:url" content="https://cwww3.github.io/2021/07/19/pprof/index.html">
 <meta property="og:site_name" content="Cwww3&#39;s Blog">
-<meta property="og:description" content="部署 web程序   123import (	_ &quot;net&#x2F;http&#x2F;pprof&quot; &#x2F;&#x2F; 引入 pprof 包)">
+<meta property="og:description" content="pprof部署 web程序   123import (	_ &quot;net&#x2F;http&#x2F;pprof&quot; &#x2F;&#x2F; 引入 pprof 包)  12345main() &amp;#123;  ...  fmt.Println(http.ListenAndServe(&quot;localhost:port&quot;, nil))  ...&amp;#125;   对于非web程序   12345678&#x2F;&#x2F; 通">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-07-19T05:11:46.000Z">
-<meta property="article:modified_time" content="2021-07-19T05:12:14.518Z">
+<meta property="article:modified_time" content="2022-01-17T02:04:37.850Z">
 <meta property="article:author" content="Cwww3">
 <meta property="article:tag" content="pprof">
 <meta name="twitter:card" content="summary">
@@ -180,10 +180,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-07-19 13:11:46 / 修改时间：13:12:14" itemprop="dateCreated datePublished" datetime="2021-07-19T13:11:46+08:00">2021-07-19</time>
+              <time title="创建时间：2021-07-19 13:11:46" itemprop="dateCreated datePublished" datetime="2021-07-19T13:11:46+08:00">2021-07-19</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-17 10:04:37" itemprop="dateModified" datetime="2022-01-17T10:04:37+08:00">2022-01-17</time>
+              </span>
 
           
   
@@ -210,11 +216,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><ul>
+        <h2 id="pprof"><a href="#pprof" class="headerlink" title="pprof"></a>pprof</h2><h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><ul>
 <li>web程序 </li>
 </ul>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	_ <span class="string">&quot;net/http/pprof&quot;</span> <span class="comment">// 引入 pprof 包</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-<span id="more"></span>
+
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">main() &#123;</span><br><span class="line">  ...</span><br><span class="line">  fmt.Println(http.ListenAndServe(<span class="string">&quot;localhost:port&quot;</span>, <span class="literal">nil</span>))</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <ul>
@@ -223,6 +229,8 @@
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 通过启动一个goroutine监听端口</span></span><br><span class="line">main() &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		fmt.Println(http.ListenAndServe(<span class="string">&quot;localhost:port&quot;</span>, <span class="literal">nil</span>))</span><br><span class="line">	&#125;()</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 或者使用runtime/pprof包 并从程序中获取相关信息</span></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	_ <span class="string">&quot;runtime/pprof&quot;</span> <span class="comment">// 引入 pprof 包</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
 
 <h3 id="采集信息"><a href="#采集信息" class="headerlink" title="采集信息"></a>采集信息</h3><ul>
 <li>接口获取</li>
@@ -237,7 +245,12 @@
 </ul>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取 trace 信息</span></span><br><span class="line">f, err := os.Create(<span class="string">&quot;trace.out&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="built_in">panic</span>(err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">err = trace.Start(f)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">	<span class="built_in">panic</span>(err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取 CPU 的信息</span></span><br><span class="line"><span class="keyword">var</span> cpuprofile = flag.String(<span class="string">&quot;cpuprofile&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;write cpu profile to `file`&quot;</span>)</span><br><span class="line">flag.Parse()</span><br><span class="line"><span class="keyword">if</span> *cpuprofile != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">    f, err := os.Create(*cpuprofile)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        log.Fatal(<span class="string">&quot;could not create CPU profile: &quot;</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">defer</span> f.Close()</span><br><span class="line">    <span class="keyword">if</span> err := pprof.StartCPUProfile(f); err != <span class="literal">nil</span> &#123;</span><br><span class="line">        log.Fatal(<span class="string">&quot;could not start CPU profile: &quot;</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">defer</span> pprof.StopCPUProfile()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取内存信息</span></span><br><span class="line"><span class="keyword">var</span> memprofile = flag.String(<span class="string">&quot;memprofile&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;write memory profile to `file`&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> *memprofile != <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">    f, err := os.Create(*memprofile)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        log.Fatal(<span class="string">&quot;could not create memory profile: &quot;</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">defer</span> f.Close() </span><br><span class="line">    runtime.GC() </span><br><span class="line">    <span class="keyword">if</span> err := pprof.WriteHeapProfile(f); err != <span class="literal">nil</span> &#123;</span><br><span class="line">        log.Fatal(<span class="string">&quot;could not write memory profile: &quot;</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<h3 id="可视化分析"><a href="#可视化分析" class="headerlink" title="可视化分析"></a>可视化分析</h3><p><code>go tool pprof</code> 既可以对采集到的离线数据进行分析，也可以是结合上面的 pprof http 接口，直接在线上进行分析</p>
+<ul>
+<li>测试产生</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go test -bench . -cpuprofile cpu.prof</span><br></pre></td></tr></table></figure>
+
+<h3 id="视化分析"><a href="#视化分析" class="headerlink" title="视化分析"></a>视化分析</h3><p><code>go tool pprof</code> 既可以对采集到的离线数据进行分析，也可以是结合上面的 pprof http 接口，直接在线上进行分析</p>
 <ul>
 <li>在线分析</li>
 </ul>
@@ -253,8 +266,6 @@
 <li>离线分析</li>
 </ul>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go tool trace trace.out</span><br></pre></td></tr></table></figure>
-
-
 
 <h3 id="压测工具"><a href="#压测工具" class="headerlink" title="压测工具"></a>压测工具</h3><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/wg/wrk">wrk地址</a> </li>
@@ -365,7 +376,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2"><span class="nav-number">1.</span> <span class="nav-text">部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%87%E9%9B%86%E4%BF%A1%E6%81%AF"><span class="nav-number">2.</span> <span class="nav-text">采集信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">可视化分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7"><span class="nav-number">4.</span> <span class="nav-text">压测工具</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#pprof"><span class="nav-number">1.</span> <span class="nav-text">pprof</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2"><span class="nav-number">1.1.</span> <span class="nav-text">部署</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%87%E9%9B%86%E4%BF%A1%E6%81%AF"><span class="nav-number">1.2.</span> <span class="nav-text">采集信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%8C%96%E5%88%86%E6%9E%90"><span class="nav-number">1.3.</span> <span class="nav-text">视化分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7"><span class="nav-number">1.4.</span> <span class="nav-text">压测工具</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
