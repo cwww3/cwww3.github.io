@@ -6,7 +6,7 @@
   <link href="https://cwww3.github.io/atom.xml" rel="self"/>
   
   <link href="https://cwww3.github.io/"/>
-  <updated>2022-01-05T16:30:21.328Z</updated>
+  <updated>2022-03-31T01:20:26.430Z</updated>
   <id>https://cwww3.github.io/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>mysqlbinlog</title>
+    <link href="https://cwww3.github.io/2022/03/31/mysqlbinlog/"/>
+    <id>https://cwww3.github.io/2022/03/31/mysqlbinlog/</id>
+    <published>2022-03-31T01:19:54.000Z</published>
+    <updated>2022-03-31T01:20:26.430Z</updated>
+    
+    <content type="html"><![CDATA[<p>查看是否开启binlog</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show variables like &#x27;log_bin&#x27;;</span><br></pre></td></tr></table></figure><p>查看binlog</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show binary logs</span><br></pre></td></tr></table></figure><span id="more"></span><p>分析binlog</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysqlbinlog </span><br><span class="line">-base64-output=decode-rows  -- 解码</span><br><span class="line">--no-defaults --database=db  </span><br><span class="line">--start-datetime=&#x27;2019-04-11 00:00:00&#x27; </span><br><span class="line">--stop-datetime=&#x27;2019-04-11 15:00:00&#x27;  mysql-bin.000007 </span><br><span class="line">-- 指定位置 --start-position   --stop-position</span><br></pre></td></tr></table></figure>]]></content>
+    
+    
+    <summary type="html">&lt;p&gt;查看是否开启binlog&lt;/p&gt;
+&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;show variables like &amp;#x27;log_bin&amp;#x27;;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+
+&lt;p&gt;查看binlog&lt;/p&gt;
+&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;show binary logs&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;</summary>
+    
+    
+    
+    
+    <category term="MySql" scheme="https://cwww3.github.io/tags/MySql/"/>
+    
+  </entry>
   
   <entry>
     <title>map</title>
@@ -467,26 +490,6 @@
     
     
     <category term="protobuf" scheme="https://cwww3.github.io/tags/protobuf/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>makefile</title>
-    <link href="https://cwww3.github.io/2021/07/09/makefile/"/>
-    <id>https://cwww3.github.io/2021/07/09/makefile/</id>
-    <published>2021-07-09T08:08:08.000Z</published>
-    <updated>2021-07-09T08:09:09.158Z</updated>
-    
-    <content type="html"><![CDATA[<p>Makefile由一条或多条规则构成。每条规则格式如下</p><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;target&gt; : &lt;prerequisites&gt; </span><br><span class="line">[tab]  &lt;commands&gt;</span><br></pre></td></tr></table></figure><span id="more"></span><p><code>target</code> 表示目标，即要创建的文件(可以是多个 通过空格隔开 通常是文件)，除了文件还可以是一个操作的名称，称为伪目标</p><p><code>prerequisites</code> 表示条件，即要创建target所需的文件 (可以是多个 通过空格隔开 )，也可以是伪目标</p><p><code>tab </code> 第二行要输入一个Tab键</p><p><code>commands</code> 表示能在终端执行的命令</p><p>示例</p><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">a.txt: b.txt c.txt</span></span><br><span class="line">    cat b.txt c.txt &gt; a.txt</span><br><span class="line"><span class="comment"># 要创建a必须要b和c </span></span><br><span class="line"><span class="comment"># Tab键后面更命令</span></span><br></pre></td></tr></table></figure><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: build</span></span><br><span class="line"><span class="section">build: b.txt c.txt</span></span><br><span class="line">    cat b.txt c.txt &gt; a.txt</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 这里的build就是一个伪目标</span></span><br><span class="line"><span class="comment"># Tab键后面更命令</span></span><br><span class="line"><span class="comment"># 为了防止正好有一个名为build的文件 导致make命令误认为build文件已存在，而不执行</span></span><br><span class="line"><span class="comment"># 可以通过 .PHONY明确声明build是一个伪目标</span></span><br></pre></td></tr></table></figure><p>make命令默认会根据当前目录的Makefile去进行编译构建，也可以通过-f指定文件。</p><p>make 默认只会执行Makefile中的第一个目标</p><p>通过 make target 执行指定规则 </p><p>正常情况下，make会打印每条命令，然后再执行，这就叫做回声（echoing）,可以通过命令前加@符号，取消打印。</p><p>make</p><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 命令中的注释也会被打印</span></span><br><span class="line"><span class="section">test:</span></span><br><span class="line">    @<span class="comment"># 这是测试</span></span><br><span class="line">    @echo TODO</span><br></pre></td></tr></table></figure>]]></content>
-    
-    
-    <summary type="html">&lt;p&gt;Makefile由一条或多条规则构成。每条规则格式如下&lt;/p&gt;
-&lt;figure class=&quot;highlight makefile&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;lt;target&amp;gt; : &amp;lt;prerequisites&amp;gt; &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;[tab]  &amp;lt;commands&amp;gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;</summary>
-    
-    
-    
-    
-    <category term="Makefile" scheme="https://cwww3.github.io/tags/Makefile/"/>
     
   </entry>
   
