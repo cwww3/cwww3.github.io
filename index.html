@@ -155,6 +155,86 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2022/07/02/gorm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/my-avatar.png">
+      <meta itemprop="name" content="Cwww3">
+      <meta itemprop="description" content="Record what you think">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cwww3's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/02/gorm/" class="post-title-link" itemprop="url">gorm</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-07-02 22:51:13 / 修改时间：22:51:55" itemprop="dateCreated datePublished" datetime="2022-07-02T22:51:13+08:00">2022-07-02</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2022/07/02/gorm/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/07/02/gorm/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="GORM源码浅析"><a href="#GORM源码浅析" class="headerlink" title="GORM源码浅析"></a>GORM源码浅析</h2><h3 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// gorm 连接数据库</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Open</span><span class="params">(dialector Dialector, opts ...Option)</span> <span class="params">(db *DB, err error)</span></span> &#123;</span><br><span class="line">  <span class="comment">// 全局配置</span></span><br><span class="line">  config := &amp;Config&#123;&#125;</span><br><span class="line">  </span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 加载配置</span></span><br><span class="line">	<span class="keyword">for</span> _, opt := <span class="keyword">range</span> opts &#123;</span><br><span class="line">		<span class="keyword">if</span> opt != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> applyErr := opt.Apply(config); applyErr != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="literal">nil</span>, applyErr</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">(opt Option)</span></span> &#123;</span><br><span class="line">				<span class="keyword">if</span> errr := opt.AfterInitialize(db); errr != <span class="literal">nil</span> &#123;</span><br><span class="line">					err = errr</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;(opt)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 时间精度配置 默认毫秒</span></span><br><span class="line">	<span class="keyword">if</span> d, ok := dialector.(<span class="keyword">interface</span>&#123; Apply(*Config) error &#125;); ok &#123;</span><br><span class="line">		<span class="keyword">if</span> err = d.Apply(config); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 注册query/create..等操作执行时所需要调用的函数</span></span><br><span class="line">  <span class="comment">// gorm:query -&gt; gorm:preload -&gt; gorm:after_query</span></span><br><span class="line">  <span class="comment">// 对不同版本的数据库做相应的约束</span></span><br><span class="line">	db.callbacks = initializeCallbacks(db)</span><br><span class="line">	<span class="keyword">if</span> config.Dialector != <span class="literal">nil</span> &#123;</span><br><span class="line">		err = config.Dialector.Initialize(db)</span><br><span class="line">	&#125;</span><br><span class="line">  </span><br><span class="line">  ...</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// clone=1</span></span><br><span class="line">	db = &amp;DB&#123;Config: config, clone: <span class="number">1</span>&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 在执行sql前后，相关的信息都会存在其中</span></span><br><span class="line">	db.Statement = &amp;Statement&#123;</span><br><span class="line">		DB:       db,</span><br><span class="line">		ConnPool: db.ConnPool,</span><br><span class="line">		Context:  context.Background(),</span><br><span class="line">		Clauses:  <span class="keyword">map</span>[<span class="keyword">string</span>]clause.Clause&#123;&#125;,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 连接时，自动会进行ping操作</span></span><br><span class="line">	<span class="keyword">if</span> err == <span class="literal">nil</span> &amp;&amp; !config.DisableAutomaticPing &#123;</span><br><span class="line">		<span class="keyword">if</span> pinger, ok := db.ConnPool.(<span class="keyword">interface</span>&#123; Ping() error &#125;); ok &#123;</span><br><span class="line">			err = pinger.Ping()</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		config.Logger.Error(context.Background(), <span class="string">&quot;failed to initialize database, got error %v&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/07/02/gorm/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2022/03/31/mysqlbinlog/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -560,87 +640,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2021/11/27/Nginx/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/my-avatar.png">
-      <meta itemprop="name" content="Cwww3">
-      <meta itemprop="description" content="Record what you think">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Cwww3's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/27/Nginx/" class="post-title-link" itemprop="url">Nginx</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-11-27 18:00:07 / 修改时间：20:02:32" itemprop="dateCreated datePublished" datetime="2021-11-27T18:00:07+08:00">2021-11-27</time>
-            </span>
-
-          
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine：</span>
-    
-    <a title="valine" href="/2021/11/27/Nginx/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/11/27/Nginx/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="Nginx"><a href="#Nginx" class="headerlink" title="Nginx"></a>Nginx</h2><h3 id="二进制安装"><a href="#二进制安装" class="headerlink" title="二进制安装"></a>二进制安装</h3><p><a target="_blank" rel="noopener" href="http://nginx.org/en/download.html">安装地址</a></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 解压nginx压缩包并进入nginx-1.20.2</span></span><br><span class="line">tar -xf nginx-1.20.2.tar.gz &amp;&amp; cd nginx-1.20.2</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 安装所需软件</span></span><br><span class="line">yum install -y pcre pcre-devel  #支持nginx的正则</span><br><span class="line">yum install -y openssl openssl-devel     #加密认证</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 执行./configure 配置环境 生成Makefile文件</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> prefix指定安装的路径</span></span><br><span class="line">./configure --user=nginx --group=nginx --prefix=/etc/nginx/ --with-http_stub_status_module --with-http_ssl_module --with-pcre</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 编译并且安装</span> </span><br><span class="line">make&amp;&amp;make install</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 配置PATH路径</span> </span><br><span class="line">export PAHT=$PATH:/etc/nginx/sbin</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/11/27/Nginx/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -712,14 +711,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-count">38</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">23</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
