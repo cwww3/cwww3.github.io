@@ -20,27 +20,20 @@
     var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="HTTPSHTTP 由于是明⽂传输，所以安全上存在以下三个⻛险： 窃听⻛险，⽐如通信链路上可以获取通信内容，⽤户号容易没。 篡改⻛险，⽐如强制植⼊垃圾⼴告，视觉污染，⽤户眼容易瞎。 冒充⻛险，⽐如冒充淘宝⽹站，⽤户钱容易没。">
+  <meta name="description" content="物理内存，大小有限，多个程序使用，不易分配。 引入虚拟地址，程序的视角认为整个内存只有它在使用。程序间相互隔离，互不影响。 CPU中的内存管理单元(MMU)，负责将虚拟地址转化为实际的物理地址。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="HTTPS">
-<meta property="og:url" content="https://cwww3.github.io/2021/11/27/HTTPS/index.html">
+<meta property="og:title" content="memory">
+<meta property="og:url" content="https://cwww3.github.io/2022/07/23/memory/index.html">
 <meta property="og:site_name" content="Cwww3&#39;s Blog">
-<meta property="og:description" content="HTTPSHTTP 由于是明⽂传输，所以安全上存在以下三个⻛险： 窃听⻛险，⽐如通信链路上可以获取通信内容，⽤户号容易没。 篡改⻛险，⽐如强制植⼊垃圾⼴告，视觉污染，⽤户眼容易瞎。 冒充⻛险，⽐如冒充淘宝⽹站，⽤户钱容易没。">
+<meta property="og:description" content="物理内存，大小有限，多个程序使用，不易分配。 引入虚拟地址，程序的视角认为整个内存只有它在使用。程序间相互隔离，互不影响。 CPU中的内存管理单元(MMU)，负责将虚拟地址转化为实际的物理地址。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127200955709.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127201037389.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127201414160.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127204231432.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/16380164319252.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127204841502.png">
-<meta property="article:published_time" content="2021-11-27T12:52:40.000Z">
-<meta property="article:modified_time" content="2021-11-27T12:55:29.672Z">
+<meta property="article:published_time" content="2022-07-23T03:54:08.000Z">
+<meta property="article:modified_time" content="2022-07-23T03:54:30.007Z">
 <meta property="article:author" content="Cwww3">
-<meta property="article:tag" content="网络">
+<meta property="article:tag" content="os">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127200955709.png">
 
-<link rel="canonical" href="https://cwww3.github.io/2021/11/27/HTTPS/">
+<link rel="canonical" href="https://cwww3.github.io/2022/07/23/memory/">
 
 
 <script id="page-configurations">
@@ -53,7 +46,7 @@
   };
 </script>
 
-  <title>HTTPS | Cwww3's Blog</title>
+  <title>memory | Cwww3's Blog</title>
   
 
 
@@ -165,7 +158,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2021/11/27/HTTPS/">
+    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2022/07/23/memory/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/my-avatar.png">
@@ -178,7 +171,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          HTTPS
+          memory
         </h1>
 
         <div class="post-meta">
@@ -189,7 +182,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-11-27 20:52:40 / 修改时间：20:55:29" itemprop="dateCreated datePublished" datetime="2021-11-27T20:52:40+08:00">2021-11-27</time>
+              <time title="创建时间：2022-07-23 11:54:08 / 修改时间：11:54:30" itemprop="dateCreated datePublished" datetime="2022-07-23T11:54:08+08:00">2022-07-23</time>
             </span>
 
           
@@ -201,8 +194,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2021/11/27/HTTPS/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/11/27/HTTPS/" itemprop="commentCount"></span>
+    <a title="valine" href="/2022/07/23/memory/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/07/23/memory/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -217,79 +210,33 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h2><p>HTTP 由于是明⽂传输，所以安全上存在以下三个⻛险：</p>
-<p>窃听⻛险，⽐如通信链路上可以获取通信内容，⽤户号容易没。</p>
-<p>篡改⻛险，⽐如强制植⼊垃圾⼴告，视觉污染，⽤户眼容易瞎。</p>
-<p>冒充⻛险，⽐如冒充淘宝⽹站，⽤户钱容易没。</p>
+        <p>物理内存，大小有限，多个程序使用，不易分配。</p>
+<p>引入虚拟地址，程序的视角认为整个内存只有它在使用。程序间相互隔离，互不影响。</p>
+<p>CPU中的内存管理单元(MMU)，负责将虚拟地址转化为实际的物理地址。</p>
 <span id="more"></span>
 
-<p>HTTP<strong>S</strong> 在 HTTP 与 TCP 层之间加⼊了 SSL/TLS 协议，可以很好的解决HTTP的安全问题。</p>
-<ul>
-<li><p>混合加密的⽅式实现信息的机密性，解决了窃听的⻛险。</p>
-<p>在通信建⽴前采⽤⾮对称加密的⽅式交换「会话秘钥」，后续就不再使⽤⾮对称加密。</p>
-<p>在通信过程中全部使⽤对称加密的「会话秘钥」的⽅式加密明⽂数据。</p>
-<p>对称加密只使⽤⼀个密钥，运算速度快，密钥必须保密，⽆法做到安全的密钥交换。⾮对称加密使⽤两个密钥：公钥和私钥，公钥可以任意分发⽽私钥保密，解决了密钥交换问题但速度慢。</p>
-<img src="https://gitee.com/captain233/picture/raw/master/image-20211127200955709.png" alt="image-20211127200955709" style="zoom:25%;" /></li>
-<li><p>摘要算法的⽅式来实现完整性，它能够为数据⽣成独⼀⽆⼆的「指纹」，指纹⽤于校验数据的完整性，解决了篡改的⻛险。</p>
-<p>客户端在发送明⽂之前会通过摘要算法算出明⽂的「指纹」，发送的时候把「指纹 + 明⽂」⼀同加密成密⽂后，发送给服务器，服务器解密后，⽤相同的摘要算法算出发送过来的明⽂，通过⽐较客户端携带的「指纹」和当前算出的「指纹」做⽐较，若「指纹」相同，说明数据是完整的。</p>
-<img src="https://gitee.com/captain233/picture/raw/master/image-20211127201037389.png" alt="image-20211127201037389" style="zoom:25%;" /></li>
-</ul>
-<ul>
-<li><p>数字证书，解决了冒充的⻛险。</p>
-<p>客户端先向服务器端索要公钥，然后⽤公钥加密信息，服务器收到密⽂后，⽤⾃⼰的私钥解密。这就存在些问题，如何保证公钥不被篡改和信任度？所以这⾥就需要借助第三⽅权威机构 CA （数字证书认证机构），将服务器公钥放在数字证书（由数字证书认证机构颁发）中，只要证书是可信的，公钥就是可信的。</p>
-</li>
-</ul>
-<p>​                                                                        <img src="https://gitee.com/captain233/picture/raw/master/image-20211127201414160.png" alt="image-20211127201414160" style="zoom:33%;" /></p>
-<h3 id="SSL-TLS-协议基本流程"><a href="#SSL-TLS-协议基本流程" class="headerlink" title="SSL/TLS 协议基本流程"></a>SSL/TLS 协议基本流程</h3><p>TSL四次握手</p>
-<img src="https://gitee.com/captain233/picture/raw/master/image-20211127204231432.png" alt="image-20211127204231432" style="zoom:50%;" />
-
-<ul>
-<li>ClientHello</li>
-</ul>
-<p>⾸先，由客户端向服务器发起加密通信请求，也就是 ClientHello 请求。</p>
-<p>在这⼀步，客户端主要向服务器发送以下信息：</p>
-<p>（1）客户端⽀持的 SSL/TLS 协议版本，如 TLS 1.2 版本。</p>
-<p>（2）客户端⽣产的随机数（ Client Random ），后⾯⽤于⽣产「会话秘钥」。</p>
-<p>（3）客户端⽀持的密码套件列表，如 RSA 加密算法。</p>
-<ul>
-<li>ServerHello</li>
-</ul>
-<p>服务器收到客户端请求后，向客户端发出响应，也就是 SeverHello 。服务器回应的内容有如下内容：</p>
-<p>（1）确认 SSL/ TLS 协议版本，如果浏览器不⽀持，则关闭加密通信。</p>
-<p>（2）服务器⽣产的随机数（ Server Random ），后⾯⽤于⽣产「会话秘钥」。</p>
-<p>（3）确认的密码套件列表，如 RSA 加密算法。</p>
-<p>（4）服务器的数字证书。</p>
-<ul>
-<li>客户端回应</li>
-</ul>
-<p>客户端收到服务器的回应之后，⾸先通过浏览器或者操作系统中的 CA 公钥，确认服务器的数字证书的真实性。如果证书没有问题，客户端会从数字证书中取出服务器的公钥，然后使⽤它加密报⽂，向服务器发送如下信息：</p>
-<p>（1）⼀个随机数（ pre-master key ）。该随机数会被服务器公钥加密。</p>
-<p>（2）加密通信算法改变通知，表示随后的信息都将⽤「会话秘钥」加密通信。</p>
-<p>（3）客户端握⼿结束通知，表示客户端的握⼿阶段已经结束。这⼀项同时把之前所有内容的发⽣的数据做个摘要，⽤来供服务端校验。上⾯第⼀项的随机数是整个握⼿阶段的第三个随机数，这样服务器和客户端就同时有三个随机数，接着就⽤双⽅协商的加密算法，各⾃⽣成本次通信的「会话秘钥」。</p>
-<ul>
-<li>服务器的最后回应</li>
-</ul>
-<p>服务器收到客户端的第三个随机数（ pre-master key ）之后，通过协商的加密算法，计算出本次通信的「会话秘钥」。然后，向客户端发⽣最后的信息：</p>
-<p>（1）加密通信算法改变通知，表示随后的信息都将⽤「会话秘钥」加密通信。</p>
-<p>（2）服务器握⼿结束通知，表示服务器的握⼿阶段已经结束。这⼀项同时把之前所有内容的发⽣的数据做个摘要，⽤来供客户端校验。</p>
-<p>⾄此，整个 SSL/TLS 的握⼿阶段全部结束。接下来，客户端与服务器进⼊加密通信，就完全是使⽤普通的 HTTP协议，只不过⽤「会话秘钥」加密内容。</p>
-<p>事实上，不同的密钥交换算法，TLS 的握⼿过程可能会有⼀些区别。</p>
-<p>这⾥先简单介绍下密钥交换算法，因为考虑到性能的问题，所以双⽅在加密应⽤信息时使⽤的是对称加密密钥，⽽对称加密密钥是不能被泄漏的，为了保证对称加密密钥的安全性，所以使⽤⾮对称加密的⽅式来保护对称加密密钥的协商，这个⼯作就是密钥交换算法负责的。接下来，我们就以最简单的 RSA 密钥交换算法，来看看它的 TLS 握⼿过程。</p>
-<img src="https://gitee.com/captain233/picture/raw/master/16380164319252.png" alt="16380164319252"  />
-
-
-
-
-
-
-
-<p><strong>RSA</strong> 算法的缺陷</p>
-<p>使⽤ <strong>RSA</strong> 密钥协商算法的最⼤问题是不⽀持<strong>前向保密</strong>。因为客户端传递随机数（⽤于⽣成对称加密密钥的条件之⼀）给服务端时使⽤的是公钥加密的，服务端收到到后，会⽤私钥解密得到随机数。所以⼀旦服务端的私钥泄漏了，过去被第三⽅截获的所有 TLS 通讯密⽂都会被破解。</p>
-<p>为了解决这⼀问题，于是就有了 DH 密钥协商算法，这⾥简单介绍它的⼯作流程。</p>
-<img src="https://gitee.com/captain233/picture/raw/master/image-20211127204841502.png" alt="image-20211127204841502" style="zoom:50%;" />
-
-<p>客户端和服务端各⾃会⽣成随机数，并以此作为私钥，然后根据公开的 DH 计算公示算出各⾃的公钥，通过 TLS握⼿双⽅交换各⾃的公钥，这样双⽅都有⾃⼰的私钥和对⽅的公钥，然后双⽅根据各⾃持有的材料算出⼀个随机数，这个随机数的值双⽅都是⼀样的，这就可以作为后续对称加密时使⽤的密钥。</p>
-<p> DH 密钥交换过程中，即使第三⽅截获了 <strong>TLS</strong> 握⼿阶段传递的公钥，在不知道的私钥的情况下，也是⽆法计算出密钥的，⽽且每⼀次对称加密密钥都是实时⽣成的，实现前向保密。但因为 DH 算法的计算效率问题，后⾯出现了 ECDHE 密钥协商算法，我们现在⼤多数⽹站使⽤的正是 ECDHE 密钥协商算法。</p>
+<h3 id="管理虚拟地址和物理地址"><a href="#管理虚拟地址和物理地址" class="headerlink" title="管理虚拟地址和物理地址"></a>管理虚拟地址和物理地址</h3><h4 id="分段"><a href="#分段" class="headerlink" title="分段"></a>分段</h4><p>程序由若干个逻辑分段组成，代码分段、数据分段、栈段、堆段组成。虚拟地址由两部分组成，<strong>段选择因子</strong>和<strong>段内偏移量</strong>。根据段选择因子可以从存储在内存中的段表中找到<strong>段基地址</strong>，再根据段内偏移量，得到真正的物理地址。段选择因子还包含了其他信息,段界限(限制段的大小),特权级DPL(读/写控制)</p>
+<h5 id="问题："><a href="#问题：" class="headerlink" title="问题："></a>问题：</h5><p>内存碎片,会产生多个不连续的物理内存，导致新的程序无法被装载。</p>
+<p>内存浪费，程序的所有内存都被装载到物理内存，但是有部分内存并不常用。</p>
+<h5 id="解决："><a href="#解决：" class="headerlink" title="解决："></a>解决：</h5><p>内存交换，对于不连续的内存，可以读入到磁盘，再从磁盘中读出，连续地存入内存(Swap)</p>
+<h5 id="问题：-1"><a href="#问题：-1" class="headerlink" title="问题："></a>问题：</h5><p>如果频繁的进行内存交换，且交换的是内存占用很大的程序，那么效率肯定会很低。引入分页解决</p>
+<h4 id="分页"><a href="#分页" class="headerlink" title="分页"></a>分页</h4><p>优化交换的内存大小，让需要交换写入或者从磁盘装载的数据更少一点。</p>
+<p>分页是把<strong>整个虚拟和物理内存空间</strong>切成一段段固定尺寸的大小——页(Page).虚拟地址和物理地址的映射通过存储在内存中的页表来映射。<strong>页表保存所有虚拟地址和物理地址的映射</strong></p>
+<p>如果内存空间不够，操作系统会把其他正在运行的进程中的最近没被使用的内存页面给释放掉，暂时暂时卸载硬盘上(Swap Out)，一旦需要，再加载进来(Swap In)。每次交换的大小就是一个页或者几个页，提升了交换的效率。</p>
+<p>分页使得我们在加载程序的时候，不再需要一次性把程序加载到物理内存中，而只有在程序运行中，需要用到对应虚拟内存页里面的指令和数据时，再加载到物理内存里。</p>
+<p>在分页机制下，虚拟地址分为<strong>页号</strong>和<strong>业内偏移</strong>，根据页号，能从页表中获取<strong>物理内存的基地址</strong>，再根据业内偏移得到物理内存地址。</p>
+<h5 id="问题：-2"><a href="#问题：-2" class="headerlink" title="问题："></a>问题：</h5><p>因为页表存储的是整个虚拟地址和物理地址的映射，那么存储一个页表所需的内存会比较多，且每一个程序都会拥有一个自己的页表，那会导致很大一部分内存用于存储页表信息。</p>
+<h5 id="解决：-1"><a href="#解决：-1" class="headerlink" title="解决："></a>解决：</h5><p>多级页表(Multi-Level Page Table)</p>
+<p>一级页表中存储1024个页表项(覆盖整个虚拟空间的大小，相比原来一级分页中的页表空间占用小了很多)，根据页表项中的信息，可以得到二级页表中的页表项，再根据二级页表中的页表项得到物理地址。(虽然一级页表小了，但是好像总体所花的空间更多了！！！)</p>
+<p>根据<strong>局部性原理</strong>，每个进程都有4GB的虚拟空间，显然，其使用的空间远未达到4GB，因为存在部分的页表项是空的，根本没有分配，对于已分配的页表项，如果一定时间未访问，在物理内存紧张的情况下，也会被换出到因硬盘。</p>
+<p>所以如果使用了二级分页，<strong>如果一级页表的页表项没有被分配，就不需要创建二级页表了</strong>，这样就能减少页表对内存的占用。</p>
+<h5 id="问题：-3"><a href="#问题：-3" class="headerlink" title="问题："></a>问题：</h5><p>虽然在空间上减少了占用，但是由于采用了多级映射的原因，导致地址转换的速度变慢了。</p>
+<h5 id="解决：-2"><a href="#解决：-2" class="headerlink" title="解决："></a>解决：</h5><p>还是程序局部性原理，在一段时间内，整个郑旭的执行仅限于程序中的某一部分。相应地，执行所访问的存储空间也局限于某个内存区域。利用这一特性，科学家在CPU芯片中，加入了一个专门存放程序最常访问的页表项的Cache——TLB.</p>
+<h4 id="段页式"><a href="#段页式" class="headerlink" title="段页式"></a>段页式</h4><p>分段和分页并不是对立的，可以组合起来使用。</p>
+<ol>
+<li>现将程序划分为多个有逻辑意义的段</li>
+<li>再将每个段分为多个页</li>
+</ol>
 
     </div>
 
@@ -314,7 +261,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag"># 网络</a>
+              <a href="/tags/os/" rel="tag"># os</a>
           </div>
 
         
@@ -323,12 +270,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/11/27/Nginx/" rel="prev" title="Nginx">
-      <i class="fa fa-chevron-left"></i> Nginx
+    <a href="/2022/07/05/go-sql/" rel="prev" title="go-sql">
+      <i class="fa fa-chevron-left"></i> go-sql
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/12/24/kqueue/" rel="next" title="kqueue">
-      kqueue <i class="fa fa-chevron-right"></i>
+    <a href="/2022/07/23/processAndthread/" rel="next" title="processAndthread">
+      processAndthread <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -389,7 +336,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTPS"><span class="nav-number">1.</span> <span class="nav-text">HTTPS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SSL-TLS-%E5%8D%8F%E8%AE%AE%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">SSL&#x2F;TLS 协议基本流程</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%A1%E7%90%86%E8%99%9A%E6%8B%9F%E5%9C%B0%E5%9D%80%E5%92%8C%E7%89%A9%E7%90%86%E5%9C%B0%E5%9D%80"><span class="nav-number">1.</span> <span class="nav-text">管理虚拟地址和物理地址</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E6%AE%B5"><span class="nav-number">1.1.</span> <span class="nav-text">分段</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="nav-number">1.1.1.</span> <span class="nav-text">问题：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%EF%BC%9A"><span class="nav-number">1.1.2.</span> <span class="nav-text">解决：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A-1"><span class="nav-number">1.1.3.</span> <span class="nav-text">问题：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E9%A1%B5"><span class="nav-number">1.2.</span> <span class="nav-text">分页</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A-2"><span class="nav-number">1.2.1.</span> <span class="nav-text">问题：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%EF%BC%9A-1"><span class="nav-number">1.2.2.</span> <span class="nav-text">解决：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%EF%BC%9A-3"><span class="nav-number">1.2.3.</span> <span class="nav-text">问题：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%EF%BC%9A-2"><span class="nav-number">1.2.4.</span> <span class="nav-text">解决：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AE%B5%E9%A1%B5%E5%BC%8F"><span class="nav-number">1.3.</span> <span class="nav-text">段页式</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
