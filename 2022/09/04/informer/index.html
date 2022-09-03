@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta property="og:type" content="article">
+<meta property="og:title" content="Informer机制">
+<meta property="og:url" content="https://cwww3.github.io/2022/09/04/informer/index.html">
+<meta property="og:site_name" content="Cwww3&#39;s Blog">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/watermark%2Ctype_ZmFuZ3poZW5naGVpdGk%2Cshadow_10%2Ctext_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTMyNzYyNzc%3D%2Csize_16%2Ccolor_FFFFFF%2Ct_70.png">
+<meta property="article:published_time" content="2022-09-03T18:15:50.000Z">
+<meta property="article:modified_time" content="2022-09-03T18:17:14.531Z">
+<meta property="article:author" content="Cwww3">
+<meta property="article:tag" content="k8s">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/watermark%2Ctype_ZmFuZ3poZW5naGVpdGk%2Cshadow_10%2Ctext_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTMyNzYyNzc%3D%2Csize_16%2Ccolor_FFFFFF%2Ct_70.png">
+
+<link rel="canonical" href="https://cwww3.github.io/2022/09/04/informer/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Informer机制 | Cwww3's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Cwww3's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Cwww3's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Record what you think</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2022/09/04/informer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/my-avatar.png">
+      <meta itemprop="name" content="Cwww3">
+      <meta itemprop="description" content="Record what you think">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cwww3's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Informer机制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-09-04 02:15:50 / 修改时间：02:17:14" itemprop="dateCreated datePublished" datetime="2022-09-04T02:15:50+08:00">2022-09-04</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2022/09/04/informer/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/09/04/informer/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/watermark%2Ctype_ZmFuZ3poZW5naGVpdGk%2Cshadow_10%2Ctext_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3UwMTMyNzYyNzc%3D%2Csize_16%2Ccolor_FFFFFF%2Ct_70.png" alt="在这里插入图片描述"></p>
+<span id="more"></span>
+
+<p>在 Informer 架构中，有多个核心组件</p>
+<h3 id="Reflector"><a href="#Reflector" class="headerlink" title="Reflector"></a>Reflector</h3><p>Reflector 是用于监控指定资源的(Watch)，一旦资源发生改变，将资源存入 DeltaFIFO 中。</p>
+<p>在第一次运行时，会先获取一份完成的资源列表(List)存入 DeltaFIFO 中。</p>
+<h3 id="DeltaFIFO"><a href="#DeltaFIFO" class="headerlink" title="DeltaFIFO"></a>DeltaFIFO</h3><p>DeltaFIFO 可以分开理解，首先 FIFO 是一个先进先出的队列，拥有操作队列的基本方法，Delta 则是存储资源对象以及对象的操作类型(Add/Delete/Update/Sync)，DeltaFIFO 与其他队列最大的不同则是它会保留所有资源对象的操作类型，即队列中会存在拥有不同操作类型的同一个资源对象。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> DeltaFIFO <span class="keyword">struct</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">  queue []<span class="keyword">string</span>  <span class="comment">// 存储的是key,资源对象通过KeyOf生成key，key与资源对象对应</span></span><br><span class="line">  items <span class="keyword">map</span>[<span class="keyword">string</span>]Deltas <span class="comment">// map的key就是queue中的元素</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Deltas []Delta <span class="comment">// Delta 保存的是资源对象以及操作类型 Deltas中每个资源的操作类型都不同(去重)</span></span><br></pre></td></tr></table></figure>
+
+<p>资源从队列中被 Pop 出之后，会执行 informer 会调用 HandleDeltas 方法，将它加入到 indexder 中，此外，还会将它分发给用户通过 Informer 的 AddEventHandler 方法注册的回调函数中。</p>
+<h4 id="Resync"><a href="#Resync" class="headerlink" title="Resync"></a>Resync</h4><p>Resync 机制会将 Indexer 中存储的资源对象同步到 DeltaFIFO 中，并将这些资源对象设置为 Sync 的操作类型。</p>
+<p>Resync 函数在 Reflector 中定时执行，执行周期由创建 informer 时设定。</p>
+<h3 id="Indexer"><a href="#Indexer" class="headerlink" title="Indexer"></a>Indexer</h3><p>indexer 是 client-go 用来存储资源对象并自带索引功能的本地存储。Reflector 从 DeltaFIFO 中取出对象存储至 Indexer。Indexer 与 Etcd 中所保存的数据完全一致，client-go 可以很方便的从本地获取数据，而不需要每次请求 API Server 从 Etcd 中获取数据,从而减轻了 API Server 和 Etcd 的压力。</p>
+<p>Indexer 是在 ThreadSafeMap 的基础上进行封装的。ThreadSafeMap 是一个并发读写安全的 map，Indexer 在此基础上实现了索引功能。</p>
+<p>Index 有四个非常重要的数据结构，分别是 Indices(index 的复数形式),index,Indexers 和 IndexerFunc。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Indexers <span class="keyword">map</span>[<span class="keyword">string</span>]IndexFunc</span><br><span class="line"><span class="keyword">type</span> IndexFunc <span class="function"><span class="keyword">func</span><span class="params">(obj <span class="keyword">interface</span>&#123;&#125;)</span> <span class="params">([]<span class="keyword">string</span>, error)</span></span></span><br><span class="line"><span class="keyword">type</span> Indices <span class="keyword">map</span>[<span class="keyword">string</span>]Index</span><br><span class="line"><span class="keyword">type</span> Index <span class="keyword">map</span>[<span class="keyword">string</span>]sets.String</span><br></pre></td></tr></table></figure>
+
+<p><strong>Indexers</strong>:用于存储索引器，key 为索引器的名称，value 位索引器的实现函数，它定义了获取资源对象的什么信息,以及如何获取,并组装成字符串数组返回。</p>
+<p><strong>IndexFunc</strong>: 索引器函数，定义为接收一个资源对象，返回检索结果列表</p>
+<p><strong>Indeces</strong>: 用于存储 Index，key 为索引器的名字，value 为 Index</p>
+<p><strong>index</strong>: 用于存储缓存的数据</p>
+<p>index.ByIndex 函数通过执行索引器函数得到索引结果。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *threadSafeMap)</span> <span class="title">ByIndex</span><span class="params">(indexName, indexKey <span class="keyword">string</span>)</span> <span class="params">([]<span class="keyword">interface</span>()</span>,<span class="title">error</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">  indexFunc := c.indexers[indexName] <span class="comment">// 根据索引器名称得到索引器函数</span></span><br><span class="line">  ... <span class="comment">// 执行该函数</span></span><br><span class="line"></span><br><span class="line">  index := c.indices[indexName] <span class="comment">// 根据索引器名称从indices中获取index</span></span><br><span class="line">  set := index[indexKey] <span class="comment">// 根据查询的key得到查询的结果</span></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>Donate comment here.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Cwww3 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/23/processAndthread/" rel="prev" title="processAndthread">
+      <i class="fa fa-chevron-left"></i> processAndthread
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reflector"><span class="nav-number">1.</span> <span class="nav-text">Reflector</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DeltaFIFO"><span class="nav-number">2.</span> <span class="nav-text">DeltaFIFO</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Resync"><span class="nav-number">2.1.</span> <span class="nav-text">Resync</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Indexer"><span class="nav-number">3.</span> <span class="nav-text">Indexer</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Cwww3"
+      src="/images/my-avatar.png">
+  <p class="site-author-name" itemprop="name">Cwww3</p>
+  <div class="site-description" itemprop="description">Record what you think</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">26</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/cwww3" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/15761669/cwww3" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;15761669&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cwww3</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'YhdC1c2cA0bpuapj4ksny0W9-gzGzoHsz',
+      appKey     : 'TIwAfWuWHudJm4hWreg0vUKo',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
