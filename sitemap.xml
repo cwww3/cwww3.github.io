@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://cwww3.github.io/2022/07/23/memory/</loc>
+    
+    <lastmod>2022-09-03</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://cwww3.github.io/2022/09/04/informer/</loc>
     
     <lastmod>2022-09-03</lastmod>
@@ -10,13 +17,6 @@
   
   <url>
     <loc>https://cwww3.github.io/2022/07/23/processAndthread/</loc>
-    
-    <lastmod>2022-07-23</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://cwww3.github.io/2022/07/23/memory/</loc>
     
     <lastmod>2022-07-23</lastmod>
     
