@@ -27,18 +27,18 @@
 <meta property="og:site_name" content="Cwww3&#39;s Blog">
 <meta property="og:description" content="HTTPSHTTP 由于是明⽂传输，所以安全上存在以下三个⻛险： 窃听⻛险，⽐如通信链路上可以获取通信内容，⽤户号容易没。 篡改⻛险，⽐如强制植⼊垃圾⼴告，视觉污染，⽤户眼容易瞎。 冒充⻛险，⽐如冒充淘宝⽹站，⽤户钱容易没。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127200955709.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127201037389.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127201414160.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127204231432.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/16380164319252.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127204841502.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127200955709.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127201037389.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127201414160.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127204231432.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/16380164319252.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127204841502.png">
 <meta property="article:published_time" content="2021-11-27T12:52:40.000Z">
-<meta property="article:modified_time" content="2021-11-27T12:55:29.672Z">
+<meta property="article:modified_time" content="2022-09-03T18:36:37.818Z">
 <meta property="article:author" content="Cwww3">
 <meta property="article:tag" content="网络">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://gitee.com/captain233/picture/raw/master/image-20211127200955709.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127200955709.png">
 
 <link rel="canonical" href="https://cwww3.github.io/2021/11/27/HTTPS/">
 
@@ -187,10 +187,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-11-27 20:52:40 / 修改时间：20:55:29" itemprop="dateCreated datePublished" datetime="2021-11-27T20:52:40+08:00">2021-11-27</time>
+              <time title="创建时间：2021-11-27 20:52:40" itemprop="dateCreated datePublished" datetime="2021-11-27T20:52:40+08:00">2021-11-27</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-09-04 02:36:37" itemprop="dateModified" datetime="2022-09-04T02:36:37+08:00">2022-09-04</time>
+              </span>
 
           
   
@@ -223,25 +229,23 @@
 <p>冒充⻛险，⽐如冒充淘宝⽹站，⽤户钱容易没。</p>
 <span id="more"></span>
 
-<p>HTTP<strong>S</strong> 在 HTTP 与 TCP 层之间加⼊了 SSL/TLS 协议，可以很好的解决HTTP的安全问题。</p>
+<p>HTTP<strong>S</strong> 在 HTTP 与 TCP 层之间加⼊了 SSL/TLS 协议，可以很好的解决 HTTP 的安全问题。</p>
 <ul>
 <li><p>混合加密的⽅式实现信息的机密性，解决了窃听的⻛险。</p>
 <p>在通信建⽴前采⽤⾮对称加密的⽅式交换「会话秘钥」，后续就不再使⽤⾮对称加密。</p>
 <p>在通信过程中全部使⽤对称加密的「会话秘钥」的⽅式加密明⽂数据。</p>
 <p>对称加密只使⽤⼀个密钥，运算速度快，密钥必须保密，⽆法做到安全的密钥交换。⾮对称加密使⽤两个密钥：公钥和私钥，公钥可以任意分发⽽私钥保密，解决了密钥交换问题但速度慢。</p>
-<img src="https://gitee.com/captain233/picture/raw/master/image-20211127200955709.png" alt="image-20211127200955709" style="zoom:25%;" /></li>
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127200955709.png" alt="image-20211127200955709" style="zoom:25%;" /></li>
 <li><p>摘要算法的⽅式来实现完整性，它能够为数据⽣成独⼀⽆⼆的「指纹」，指纹⽤于校验数据的完整性，解决了篡改的⻛险。</p>
 <p>客户端在发送明⽂之前会通过摘要算法算出明⽂的「指纹」，发送的时候把「指纹 + 明⽂」⼀同加密成密⽂后，发送给服务器，服务器解密后，⽤相同的摘要算法算出发送过来的明⽂，通过⽐较客户端携带的「指纹」和当前算出的「指纹」做⽐较，若「指纹」相同，说明数据是完整的。</p>
-<img src="https://gitee.com/captain233/picture/raw/master/image-20211127201037389.png" alt="image-20211127201037389" style="zoom:25%;" /></li>
-</ul>
-<ul>
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127201037389.png" alt="image-20211127201037389" style="zoom:25%;" /></li>
 <li><p>数字证书，解决了冒充的⻛险。</p>
 <p>客户端先向服务器端索要公钥，然后⽤公钥加密信息，服务器收到密⽂后，⽤⾃⼰的私钥解密。这就存在些问题，如何保证公钥不被篡改和信任度？所以这⾥就需要借助第三⽅权威机构 CA （数字证书认证机构），将服务器公钥放在数字证书（由数字证书认证机构颁发）中，只要证书是可信的，公钥就是可信的。</p>
 </li>
 </ul>
-<p>​                                                                        <img src="https://gitee.com/captain233/picture/raw/master/image-20211127201414160.png" alt="image-20211127201414160" style="zoom:33%;" /></p>
-<h3 id="SSL-TLS-协议基本流程"><a href="#SSL-TLS-协议基本流程" class="headerlink" title="SSL/TLS 协议基本流程"></a>SSL/TLS 协议基本流程</h3><p>TSL四次握手</p>
-<img src="https://gitee.com/captain233/picture/raw/master/image-20211127204231432.png" alt="image-20211127204231432" style="zoom:50%;" />
+<p>​ <img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127201414160.png" alt="image-20211127201414160" style="zoom:33%;" /></p>
+<h3 id="SSL-TLS-协议基本流程"><a href="#SSL-TLS-协议基本流程" class="headerlink" title="SSL/TLS 协议基本流程"></a>SSL/TLS 协议基本流程</h3><p>TSL 四次握手</p>
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127204231432.png" alt="image-20211127204231432" style="zoom:50%;" />
 
 <ul>
 <li>ClientHello</li>
@@ -272,24 +276,18 @@
 <p>服务器收到客户端的第三个随机数（ pre-master key ）之后，通过协商的加密算法，计算出本次通信的「会话秘钥」。然后，向客户端发⽣最后的信息：</p>
 <p>（1）加密通信算法改变通知，表示随后的信息都将⽤「会话秘钥」加密通信。</p>
 <p>（2）服务器握⼿结束通知，表示服务器的握⼿阶段已经结束。这⼀项同时把之前所有内容的发⽣的数据做个摘要，⽤来供客户端校验。</p>
-<p>⾄此，整个 SSL/TLS 的握⼿阶段全部结束。接下来，客户端与服务器进⼊加密通信，就完全是使⽤普通的 HTTP协议，只不过⽤「会话秘钥」加密内容。</p>
+<p>⾄此，整个 SSL/TLS 的握⼿阶段全部结束。接下来，客户端与服务器进⼊加密通信，就完全是使⽤普通的 HTTP 协议，只不过⽤「会话秘钥」加密内容。</p>
 <p>事实上，不同的密钥交换算法，TLS 的握⼿过程可能会有⼀些区别。</p>
 <p>这⾥先简单介绍下密钥交换算法，因为考虑到性能的问题，所以双⽅在加密应⽤信息时使⽤的是对称加密密钥，⽽对称加密密钥是不能被泄漏的，为了保证对称加密密钥的安全性，所以使⽤⾮对称加密的⽅式来保护对称加密密钥的协商，这个⼯作就是密钥交换算法负责的。接下来，我们就以最简单的 RSA 密钥交换算法，来看看它的 TLS 握⼿过程。</p>
-<img src="https://gitee.com/captain233/picture/raw/master/16380164319252.png" alt="16380164319252"  />
-
-
-
-
-
-
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/16380164319252.png" alt="16380164319252"  />
 
 <p><strong>RSA</strong> 算法的缺陷</p>
 <p>使⽤ <strong>RSA</strong> 密钥协商算法的最⼤问题是不⽀持<strong>前向保密</strong>。因为客户端传递随机数（⽤于⽣成对称加密密钥的条件之⼀）给服务端时使⽤的是公钥加密的，服务端收到到后，会⽤私钥解密得到随机数。所以⼀旦服务端的私钥泄漏了，过去被第三⽅截获的所有 TLS 通讯密⽂都会被破解。</p>
 <p>为了解决这⼀问题，于是就有了 DH 密钥协商算法，这⾥简单介绍它的⼯作流程。</p>
-<img src="https://gitee.com/captain233/picture/raw/master/image-20211127204841502.png" alt="image-20211127204841502" style="zoom:50%;" />
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127204841502.png" alt="image-20211127204841502" style="zoom:50%;" />
 
-<p>客户端和服务端各⾃会⽣成随机数，并以此作为私钥，然后根据公开的 DH 计算公示算出各⾃的公钥，通过 TLS握⼿双⽅交换各⾃的公钥，这样双⽅都有⾃⼰的私钥和对⽅的公钥，然后双⽅根据各⾃持有的材料算出⼀个随机数，这个随机数的值双⽅都是⼀样的，这就可以作为后续对称加密时使⽤的密钥。</p>
-<p> DH 密钥交换过程中，即使第三⽅截获了 <strong>TLS</strong> 握⼿阶段传递的公钥，在不知道的私钥的情况下，也是⽆法计算出密钥的，⽽且每⼀次对称加密密钥都是实时⽣成的，实现前向保密。但因为 DH 算法的计算效率问题，后⾯出现了 ECDHE 密钥协商算法，我们现在⼤多数⽹站使⽤的正是 ECDHE 密钥协商算法。</p>
+<p>客户端和服务端各⾃会⽣成随机数，并以此作为私钥，然后根据公开的 DH 计算公示算出各⾃的公钥，通过 TLS 握⼿双⽅交换各⾃的公钥，这样双⽅都有⾃⼰的私钥和对⽅的公钥，然后双⽅根据各⾃持有的材料算出⼀个随机数，这个随机数的值双⽅都是⼀样的，这就可以作为后续对称加密时使⽤的密钥。</p>
+<p>DH 密钥交换过程中，即使第三⽅截获了 <strong>TLS</strong> 握⼿阶段传递的公钥，在不知道的私钥的情况下，也是⽆法计算出密钥的，⽽且每⼀次对称加密密钥都是实时⽣成的，实现前向保密。但因为 DH 算法的计算效率问题，后⾯出现了 ECDHE 密钥协商算法，我们现在⼤多数⽹站使⽤的正是 ECDHE 密钥协商算法。</p>
 
     </div>
 

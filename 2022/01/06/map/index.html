@@ -27,24 +27,24 @@
 <meta property="og:site_name" content="Cwww3&#39;s Blog">
 <meta property="og:description" content="Map1234567891011121314151617181920&#x2F;&#x2F; A header for a Go map.type hmap struct &amp;#123;    &#x2F;&#x2F; 元素个数，调用 len(map) 时，直接返回此值    count     int    flags     uint8    &#x2F;&#x2F; buckets 的对数    B         uint8    &#x2F;&#x2F; overfl">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20220104233340464.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20220104233831611.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20220104234423872.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20220104235126819.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20220105000801438.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20220105000418534.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20220105000448649.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104233340464.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104233831611.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104234423872.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104235126819.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220105000801438.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220105000418534.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220105000448649.png">
 <meta property="og:image" content="https://cwww3.github.io/2022/01/Library/Application%20Support/typora-user-images/image-20220104232034372.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20220104232110233.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20220104232812869.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20220104232911854.png">
-<meta property="og:image" content="https://gitee.com/captain233/picture/raw/master/image-20220104232940068.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232110233.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232812869.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232911854.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232940068.png">
 <meta property="article:published_time" content="2022-01-05T16:29:49.000Z">
-<meta property="article:modified_time" content="2022-01-05T16:30:21.328Z">
+<meta property="article:modified_time" content="2022-09-03T18:36:37.799Z">
 <meta property="article:author" content="Cwww3">
 <meta property="article:tag" content="Go">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://gitee.com/captain233/picture/raw/master/image-20220104233340464.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104233340464.png">
 
 <link rel="canonical" href="https://cwww3.github.io/2022/01/06/map/">
 
@@ -193,10 +193,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-01-06 00:29:49 / 修改时间：00:30:21" itemprop="dateCreated datePublished" datetime="2022-01-06T00:29:49+08:00">2022-01-06</time>
+              <time title="创建时间：2022-01-06 00:29:49" itemprop="dateCreated datePublished" datetime="2022-01-06T00:29:49+08:00">2022-01-06</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-09-04 02:36:37" itemprop="dateModified" datetime="2022-09-04T02:36:37+08:00">2022-09-04</time>
+              </span>
 
           
   
@@ -233,23 +239,23 @@
 <p>编译期间会给它加料，动态地创建一个新的结构：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> bmap <span class="keyword">struct</span> &#123;</span><br><span class="line">    topbits  [<span class="number">8</span>]<span class="keyword">uint8</span></span><br><span class="line">    keys     [<span class="number">8</span>]keytype</span><br><span class="line">    values   [<span class="number">8</span>]valuetype</span><br><span class="line">    pad      <span class="keyword">uintptr</span></span><br><span class="line">    overflow <span class="keyword">uintptr</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><code>bmap</code> 就是我们常说的“桶”，桶里面会最多装 8 个 key，这些 key 之所以会落入同一个桶，是因为它们经过哈希计算后，哈希结果是“一类”的(低位一样)。在桶内，又会根据 key 计算出来的 hash 值的高 8 位来决定 key 到底落入桶内的哪个位置（一个桶内最多有8个位置）。</p>
-<p><img src="https://gitee.com/captain233/picture/raw/master/image-20220104233340464.png" alt="image-20220104233340464"></p>
+<p><code>bmap</code> 就是我们常说的“桶”，桶里面会最多装 8 个 key，这些 key 之所以会落入同一个桶，是因为它们经过哈希计算后，哈希结果是“一类”的(低位一样)。在桶内，又会根据 key 计算出来的 hash 值的高 8 位来决定 key 到底落入桶内的哪个位置（一个桶内最多有 8 个位置）。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104233340464.png" alt="image-20220104233340464"></p>
 <p>bmap 是存放 k-v 的地方，我们把视角拉近，仔细看 bmap 的内部组成。</p>
-<img src="https://gitee.com/captain233/picture/raw/master/image-20220104233831611.png" alt="image-20220104233831611" style="zoom:50%;" />
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104233831611.png" alt="image-20220104233831611" style="zoom:50%;" />
 
 <p>上图就是 bucket 的内存模型，<code>HOB Hash</code> 指的就是 top hash。 注意到 key 和 value 是各自放在一起的，并不是 <code>key/value/key/value/...</code> 这样的形式。这样的好处是在某些情况下可以省略掉 padding 字段，节省内存空间。</p>
-<h3 id="创建map"><a href="#创建map" class="headerlink" title="创建map"></a>创建map</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makemap</span><span class="params">(t *maptype, hint <span class="keyword">int64</span>, h *hmap, bucket unsafe.Pointer)</span> *<span class="title">hmap</span></span> &#123;</span><br><span class="line">    <span class="comment">// 省略各种条件检查...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 找到一个 B，使得 map 的装载因子在正常范围内</span></span><br><span class="line">    B := <span class="keyword">uint8</span>(<span class="number">0</span>)</span><br><span class="line">    <span class="keyword">for</span> ; overLoadFactor(hint, B); B++ &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化 hash table</span></span><br><span class="line">    <span class="comment">// 如果 B 等于 0，那么 buckets 就会在赋值的时候再分配</span></span><br><span class="line">    <span class="comment">// 如果长度比较大，分配内存会花费长一点</span></span><br><span class="line">    buckets := bucket</span><br><span class="line">    <span class="keyword">var</span> extra *mapextra</span><br><span class="line">    <span class="keyword">if</span> B != <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> nextOverflow *bmap</span><br><span class="line">        buckets, nextOverflow = makeBucketArray(t, B)</span><br><span class="line">        <span class="keyword">if</span> nextOverflow != <span class="literal">nil</span> &#123;</span><br><span class="line">            extra = <span class="built_in">new</span>(mapextra)</span><br><span class="line">            extra.nextOverflow = nextOverflow</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化 hamp</span></span><br><span class="line">    <span class="keyword">if</span> h == <span class="literal">nil</span> &#123;</span><br><span class="line">        h = (*hmap)(newobject(t.hmap))</span><br><span class="line">    &#125;</span><br><span class="line">    h.count = <span class="number">0</span></span><br><span class="line">    h.B = B</span><br><span class="line">    h.extra = extra</span><br><span class="line">    h.flags = <span class="number">0</span></span><br><span class="line">    h.hash0 = fastrand()</span><br><span class="line">    h.buckets = buckets</span><br><span class="line">    h.oldbuckets = <span class="literal">nil</span></span><br><span class="line">    h.nevacuate = <span class="number">0</span></span><br><span class="line">    h.noverflow = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> h</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="创建-map"><a href="#创建-map" class="headerlink" title="创建 map"></a>创建 map</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">makemap</span><span class="params">(t *maptype, hint <span class="keyword">int64</span>, h *hmap, bucket unsafe.Pointer)</span> *<span class="title">hmap</span></span> &#123;</span><br><span class="line">    <span class="comment">// 省略各种条件检查...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 找到一个 B，使得 map 的装载因子在正常范围内</span></span><br><span class="line">    B := <span class="keyword">uint8</span>(<span class="number">0</span>)</span><br><span class="line">    <span class="keyword">for</span> ; overLoadFactor(hint, B); B++ &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化 hash table</span></span><br><span class="line">    <span class="comment">// 如果 B 等于 0，那么 buckets 就会在赋值的时候再分配</span></span><br><span class="line">    <span class="comment">// 如果长度比较大，分配内存会花费长一点</span></span><br><span class="line">    buckets := bucket</span><br><span class="line">    <span class="keyword">var</span> extra *mapextra</span><br><span class="line">    <span class="keyword">if</span> B != <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> nextOverflow *bmap</span><br><span class="line">        buckets, nextOverflow = makeBucketArray(t, B)</span><br><span class="line">        <span class="keyword">if</span> nextOverflow != <span class="literal">nil</span> &#123;</span><br><span class="line">            extra = <span class="built_in">new</span>(mapextra)</span><br><span class="line">            extra.nextOverflow = nextOverflow</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化 hamp</span></span><br><span class="line">    <span class="keyword">if</span> h == <span class="literal">nil</span> &#123;</span><br><span class="line">        h = (*hmap)(newobject(t.hmap))</span><br><span class="line">    &#125;</span><br><span class="line">    h.count = <span class="number">0</span></span><br><span class="line">    h.B = B</span><br><span class="line">    h.extra = extra</span><br><span class="line">    h.flags = <span class="number">0</span></span><br><span class="line">    h.hash0 = fastrand()</span><br><span class="line">    h.buckets = buckets</span><br><span class="line">    h.oldbuckets = <span class="literal">nil</span></span><br><span class="line">    h.nevacuate = <span class="number">0</span></span><br><span class="line">    h.noverflow = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> h</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>注意，这个函数返回的结果：<code>*hmap</code>，它是一个指针，而之前讲过的 <code>makeslice</code> 函数返回的是 <code>slice</code> 结构体</p>
-<h3 id="key-定位过程"><a href="#key-定位过程" class="headerlink" title="key 定位过程"></a>key 定位过程</h3><p>key 经过哈希计算后得到哈希值，共 64 个 bit 位（64位机，32位机就不讨论了，现在主流都是64位机），计算它<strong>到底要落在哪个桶时，只会用到最后 B 个 bit 位</strong>。还记得前面提到过的 B 吗？如果 B = 5，那么桶的数量，也就是 buckets 数组的长度是 2^5 = 32。</p>
+<h3 id="key-定位过程"><a href="#key-定位过程" class="headerlink" title="key 定位过程"></a>key 定位过程</h3><p>key 经过哈希计算后得到哈希值，共 64 个 bit 位（64 位机，32 位机就不讨论了，现在主流都是 64 位机），计算它<strong>到底要落在哪个桶时，只会用到最后 B 个 bit 位</strong>。还记得前面提到过的 B 吗？如果 B = 5，那么桶的数量，也就是 buckets 数组的长度是 2^5 = 32。</p>
 <p>例如，现在有一个 key 经过哈希函数计算后，得到的哈希结果是：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">10010111</span> | <span class="number">000011110110110010001111001010100010010110010101010</span> │ <span class="number">01010</span></span><br></pre></td></tr></table></figure>
 
 <p>用最后的 5 个 bit 位，也就是 <code>01010</code>，值为 10，也就是 10 号桶。这个操作实际上就是取余操作，但是取余开销太大，所以代码实现上用的位操作代替。</p>
-<p><strong>再用哈希值的高 8 位，找到此 key 在 bucket 中的位置</strong> (先找到tophash的位置，再通过计算得到k,v的位置)，这是在寻找已有的 key。最开始桶内还没有 key，新加入的 key 会找到第一个空位，放入。</p>
+<p><strong>再用哈希值的高 8 位，找到此 key 在 bucket 中的位置</strong> (先找到 tophash 的位置，再通过计算得到 k,v 的位置)，这是在寻找已有的 key。最开始桶内还没有 key，新加入的 key 会找到第一个空位，放入。</p>
 <p>buckets 编号就是桶编号，当两个不同的 key 落在同一个桶中，也就是发生了哈希冲突。冲突的解决手段是用链表法：在 bucket 中，从前往后找到第一个空位。这样，在查找某个 key 时，先找到对应的桶，再去遍历 bucket 中的 key。</p>
-<img src="https://gitee.com/captain233/picture/raw/master/image-20220104234423872.png" alt="image-20220104234423872" style="zoom:50%;" />
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104234423872.png" alt="image-20220104234423872" style="zoom:50%;" />
 
 <p>上图中，假定 B = 5，所以 bucket 总数就是 2^5 = 32。首先计算出待查找 key 的哈希，使用低 5 位 <code>00110</code>，找到对应的 6 号 bucket，使用高 8 位 <code>10010111</code>，对应十进制 151，在 6 号 bucket 中寻找 tophash 值（HOB hash）为 151 的 key，找到了 2 号槽位，这样整个查找过程就结束了。</p>
 <p>如果在 bucket 中没找到，并且 overflow 不为空，还要继续去 overflow bucket 中寻找，直到找到或是所有的 key 槽位都找遍了，包括所有的 overflow bucket。</p>
@@ -264,8 +270,8 @@
 
 <p>遍历所有的 bucket，这相当于是一个 bucket 链表。</p>
 <p>当定位到一个具体的 bucket 时，里层循环就是遍历这个 bucket 里所有的 cell，或者说所有的槽位，也就是 bucketCnt=8 个槽位。整个循环过程：</p>
-<p><img src="https://gitee.com/captain233/picture/raw/master/image-20220104235126819.png" alt="image-20220104235126819"></p>
-<p>再说一下 <strong>minTopHash</strong>，当一个 cell 的 tophash 值小于 minTopHash 时，标志这个 cell 的迁移状态。因为这个状态值是放在 tophash 数组里，<strong>为了和正常的哈希值区分开，会给 key 计算出来的哈希值一个增量</strong>：minTopHash。这样就能区分正常的 top hash 值和表示状态的哈希值。（如果算出来的哈希值在0-3之间，那么给他加一个minTopHash，前面0-3仅用来表示状态。）</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104235126819.png" alt="image-20220104235126819"></p>
+<p>再说一下 <strong>minTopHash</strong>，当一个 cell 的 tophash 值小于 minTopHash 时，标志这个 cell 的迁移状态。因为这个状态值是放在 tophash 数组里，<strong>为了和正常的哈希值区分开，会给 key 计算出来的哈希值一个增量</strong>：minTopHash。这样就能区分正常的 top hash 值和表示状态的哈希值。（如果算出来的哈希值在 0-3 之间，那么给他加一个 minTopHash，前面 0-3 仅用来表示状态。）</p>
 <p>下面的这几种状态就表征了 bucket 的情况：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 空的 cell，也是初始时 bucket 的状态</span></span><br><span class="line">empty          = <span class="number">0</span></span><br><span class="line"><span class="comment">// 空的 cell，表示 cell 已经被迁移到新的 bucket</span></span><br><span class="line">evacuatedEmpty = <span class="number">1</span></span><br><span class="line"><span class="comment">// key,value 已经搬迁完毕，但是 key 都在新 bucket 前半部分，</span></span><br><span class="line"><span class="comment">// 后面扩容部分会再讲到。</span></span><br><span class="line">evacuatedX     = <span class="number">2</span></span><br><span class="line"><span class="comment">// 同上，key 在后半部分</span></span><br><span class="line">evacuatedY     = <span class="number">3</span></span><br><span class="line"><span class="comment">// tophash 的最小正常值</span></span><br><span class="line">minTopHash     = <span class="number">4</span></span><br></pre></td></tr></table></figure>
 
@@ -286,17 +292,15 @@
 <p>但是，现实并没有这么简单。还记得前面讲过的扩容过程吗？扩容过程不是一个原子的操作，它每次最多只搬运 2 个 bucket，所以如果触发了扩容操作，那么在很长时间里，map 的状态都是处于一个中间态：有些 bucket 已经搬迁到新家，而有些 bucket 还待在老地方。</p>
 <p>因此，遍历如果发生在扩容的过程中，就会涉及到遍历新老 bucket 的过程，这是难点所在。</p>
 <p>先是调用 <code>mapiterinit</code> 函数初始化迭代器，然后循环调用 <code>mapiternext</code> 函数进行 map 迭代。</p>
-<img src="https://gitee.com/captain233/picture/raw/master/image-20220105000801438.png" alt="image-20220105000801438" style="zoom:50%;" />
+<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220105000801438.png" alt="image-20220105000801438" style="zoom:50%;" />
 
 <p>即使是对一个写死的 map 进行遍历，每次出来的结果也是无序的，近距离地观察他们的实现。</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 生成随机数 r</span></span><br><span class="line">r := <span class="keyword">uintptr</span>(fastrand())</span><br><span class="line"><span class="keyword">if</span> h.B &gt; <span class="number">31</span>-bucketCntBits &#123;</span><br><span class="line">    r += <span class="keyword">uintptr</span>(fastrand()) &lt;&lt; <span class="number">31</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 从哪个 bucket 开始遍历</span></span><br><span class="line">it.startBucket = r &amp; (<span class="keyword">uintptr</span>(<span class="number">1</span>)&lt;&lt;h.B - <span class="number">1</span>)</span><br><span class="line"><span class="comment">// 从 bucket 的哪个 cell 开始遍历</span></span><br><span class="line">it.offset = <span class="keyword">uint8</span>(r &gt;&gt; h.B &amp; (bucketCnt - <span class="number">1</span>))</span><br></pre></td></tr></table></figure>
 
-
-
 <p>假设我们有下图所示的一个 map，起始时 B = 1，有两个 bucket，后来触发了扩容（这里不要深究扩容条件，只是一个设定），B 变成 2。并且， 1 号 bucket 中的内容搬迁到了新的 bucket，<code>1 号</code>裂变成 <code>1 号</code>和 <code>3 号</code>；<code>0 号</code> bucket 暂未搬迁。老的 bucket 挂在在 <code>*oldbuckets</code> 指针上面，新的 bucket 则挂在 <code>*buckets</code> 指针上面。</p>
-<p><img src="https://gitee.com/captain233/picture/raw/master/image-20220105000418534.png" alt="image-20220105000418534"></p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220105000418534.png" alt="image-20220105000418534"></p>
 <p>这时，我们对此 map 进行遍历。假设经过初始化后，startBucket = 3，offset = 2。于是，遍历的起点将是 3 号 bucket 的 2 号 cell，下面这张图就是开始遍历时的状态：</p>
-<p><img src="https://gitee.com/captain233/picture/raw/master/image-20220105000448649.png" alt="image-20220105000448649"></p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220105000448649.png" alt="image-20220105000448649"></p>
 <p>标红的表示起始位置，bucket 遍历顺序为：3 -&gt; 0 -&gt; 1 -&gt; 2。因为 3 号 bucket 对应老的 1 号 bucket，因此先检查老 1 号 bucket 是否已经被搬迁过。</p>
 <p>在本例中，老 1 号 bucket 已经被搬迁过了。所以它的 tophash[0] 值在 (0,4) 范围内，因此只用遍历新的 3 号 bucket。依次遍历 3 号 bucket 的 cell，这时候会找到第一个非空的 key：元素 e。到这里，mapiternext 函数返回，这时我们的遍历结果仅有一个元素：由于返回的 key 不为空，所以会继续调用 mapiternext 函数。继续从上次遍历到的地方往后遍历，从新 3 号 overflow bucket 中找到了元素 f 和 元素 g。</p>
 <p>新 3 号 bucket 遍历完之后，回到了新 0 号 bucket。0 号 bucket 对应老的 0 号 bucket，经检查，老 0 号 bucket 并未搬迁，因此对新 0 号 bucket 的遍历就改为遍历老 0 号 bucket。<strong>那是不是把老 0 号 bucket 中的所有 key 都取出来呢？</strong></p>
@@ -354,8 +358,8 @@
 <p><img src="../../Library/Application%20Support/typora-user-images/image-20220104232034372.png" alt="image-20220104232034372"></p>
 <p>因此，某个 key 在搬迁前后 bucket 序号可能和原来相等，也可能是相比原来加上 2^B（原来的 B 值），取决于 hash 值 第 6 bit 位是 0 还是 1。</p>
 <p>再明确一个问题：如果扩容后，B 增加了 1，意味着 buckets 总数是原来的 2 倍，原来 1 号的桶“裂变”到两个桶。</p>
-<p>例如，原始 B = 2，1号 bucket 中有 2 个 key 的哈希值低 3 位分别为：010，110。由于原来 B = 2，所以低 2 位 <code>10</code> 决定它们落在 2 号桶，现在 B 变成 3，所以 <code>010</code>、<code>110</code> 分别落入 2、6 号桶。</p>
-<p><img src="https://gitee.com/captain233/picture/raw/master/image-20220104232110233.png" alt="image-20220104232110233"></p>
+<p>例如，原始 B = 2，1 号 bucket 中有 2 个 key 的哈希值低 3 位分别为：010，110。由于原来 B = 2，所以低 2 位 <code>10</code> 决定它们落在 2 号桶，现在 B 变成 3，所以 <code>010</code>、<code>110</code> 分别落入 2、6 号桶。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232110233.png" alt="image-20220104232110233"></p>
 <p>关键点:</p>
 <p>evacuate 函数每次只完成一个 bucket 的搬迁工作，因此要遍历完此 bucket 的所有的 cell，将有值的 cell copy 到新的地方。bucket 还会链接 overflow bucket，它们同样需要搬迁。因此会有 2 层循环，外层遍历 bucket 和 overflow bucket，内层遍历 bucket 的所有 cell。这样的循环在 map 的源码里到处都是，要理解透了。</p>
 <p>源码里提到 X, Y part，其实就是我们说的如果是扩容到原来的 2 倍，桶的数量是原来的 2 倍，前一半桶被称为 X part，后一半桶被称为 Y part。一个 bucket 中的 key 可能会分裂落到 2 个桶，一个位于 X part，一个位于 Y part。所以在搬迁一个 cell 之前，需要知道这个 cell 中的 key 是落到哪个 Part。很简单，重新计算 cell 中 key 的 hash，并向前“多看”一位，决定落入哪个 Part，这个前面也说得很详细了。</p>
@@ -364,12 +368,12 @@
 <p>当搬迁碰到 <code>math.NaN()</code> 的 key 时，只通过 tophash 的最低位决定分配到 X part 还是 Y part（如果扩容后是原来 buckets 数量的 2 倍）。如果 tophash 的最低位是 0 ，分配到 X part；如果是 1 ，则分配到 Y part。</p>
 <p>确定了要搬迁到的目标 bucket 后，搬迁操作就比较好进行了。将源 key/value 值 copy 到目的地相应的位置。</p>
 <p>设置 key 在原始 buckets 的 tophash 为 <code>evacuatedX</code> 或是 <code>evacuatedY</code>，表示已经搬迁到了新 map 的 x part 或是 y part。新 map 的 tophash 则正常取 key 哈希值的高 8 位。</p>
-<p>扩容前，B = 2，共有 4 个 buckets，lowbits 表示 hash 值的低位(B为2，都是10,在同一个bucket中)。假设我们不关注其他 buckets 情况，专注在 2 号 bucket。并且假设 overflow 太多，触发了等量扩容（对应于前面的条件 2）。</p>
-<p><img src="https://gitee.com/captain233/picture/raw/master/image-20220104232812869.png" alt="image-20220104232812869"></p>
+<p>扩容前，B = 2，共有 4 个 buckets，lowbits 表示 hash 值的低位(B 为 2，都是 10,在同一个 bucket 中)。假设我们不关注其他 buckets 情况，专注在 2 号 bucket。并且假设 overflow 太多，触发了等量扩容（对应于前面的条件 2）。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232812869.png" alt="image-20220104232812869"></p>
 <p>扩容完成后，overflow bucket 消失了，key 都集中到了一个 bucket，更为紧凑了，提高了查找的效率。</p>
-<p><img src="https://gitee.com/captain233/picture/raw/master/image-20220104232911854.png" alt="image-20220104232911854"></p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232911854.png" alt="image-20220104232911854"></p>
 <p>假设触发了 2 倍的扩容，那么扩容完成后，老 buckets 中的 key 分裂到了 2 个 新的 bucket。一个在 x part，一个在 y 的 part。依据是 hash 的 lowbits。新 map 中 <code>0-3</code> 称为 x part，<code>4-7</code> 称为 y part。</p>
-<p><img src="https://gitee.com/captain233/picture/raw/master/image-20220104232940068.png" alt="image-20220104232940068"></p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232940068.png" alt="image-20220104232940068"></p>
 <p>注意，上面的两张图忽略了其他 buckets 的搬迁情况，表示所有的 bucket 都搬迁完毕后的情形。实际上，我们知道，搬迁是一个“渐进”的过程，并不会一下子就全部搬迁完毕。所以在搬迁过程中，oldbuckets 指针还会指向原来老的 []bmap，并且已经搬迁完毕的 key 的 tophash 值会是一个状态值，表示 key 的搬迁去向。</p>
 
     </div>
@@ -470,7 +474,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Map"><span class="nav-number">1.</span> <span class="nav-text">Map</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAmap"><span class="nav-number">1.1.</span> <span class="nav-text">创建map</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#key-%E5%AE%9A%E4%BD%8D%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">key 定位过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4"><span class="nav-number">1.3.</span> <span class="nav-text">删除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%8D%E5%8E%86"><span class="nav-number">1.4.</span> <span class="nav-text">遍历</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A9%E5%AE%B9"><span class="nav-number">1.5.</span> <span class="nav-text">扩容</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Map"><span class="nav-number">1.</span> <span class="nav-text">Map</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA-map"><span class="nav-number">1.1.</span> <span class="nav-text">创建 map</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#key-%E5%AE%9A%E4%BD%8D%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">key 定位过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4"><span class="nav-number">1.3.</span> <span class="nav-text">删除</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%8D%E5%8E%86"><span class="nav-number">1.4.</span> <span class="nav-text">遍历</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A9%E5%AE%B9"><span class="nav-number">1.5.</span> <span class="nav-text">扩容</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
