@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="内存管理TCMallocTCMalloc 为每个 Thread 预分配一块缓存，每个 Thread 在申请内存时首先会先从这个缓存区 ThreadCache 申请，且所有 ThreadCache 缓存区还共享一个叫 CentralCache 的中心缓存。这里假设目前 Golang 的内存管理用的是原生 TCMalloc 模式，那么线程与内存的关系将如图所示。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go-memery">
+<meta property="og:url" content="https://cwww3.github.io/2022/09/04/go-memory/index.html">
+<meta property="og:site_name" content="Cwww3&#39;s Blog">
+<meta property="og:description" content="内存管理TCMallocTCMalloc 为每个 Thread 预分配一块缓存，每个 Thread 在申请内存时首先会先从这个缓存区 ThreadCache 申请，且所有 ThreadCache 缓存区还共享一个叫 CentralCache 的中心缓存。这里假设目前 Golang 的内存管理用的是原生 TCMalloc 模式，那么线程与内存的关系将如图所示。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651132869540-a130e8b3-1f7d-45ec-8413-52bba81426a0.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133032054-ea888b96-0fb0-46ea-ac26-4c38abc2b66f.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133095495-53138cb4-89b8-4833-ac41-7957a1c19354.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133255704-7c07cb59-d879-468f-a925-d3494454cb7d.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133299709-8c33bad3-a31f-4844-b07c-ad54a0dc64d4.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133403346-3d07b578-45df-41b1-880e-d1a591d106ff.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133530033-bd9265dc-fd49-4a77-a845-f175ab317ea9.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133596465-fd16a3cc-256a-464c-a066-b896043a9f63.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133672724-0ac13b26-1623-444a-8c81-0b2120b2e2fa.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133803693-486e9b4a-ffb1-4932-a989-1df013b601c1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133987470-28f3feb2-8a9e-45be-a41b-596b1bd54e8d.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134285363-999c7495-7834-4785-a6ea-c44b4615ff19.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134337384-3b5b18a9-63a2-41eb-89fb-d7a030b1e569-20220904121240445.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134377320-3f71752d-65fa-4081-a255-09c387f23a65.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134640677-2a153c96-b7e8-46bc-86f3-dfaf50087329.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134740690-c1fc15a5-af2a-474c-adaa-ddc4bb05a5e3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134816735-43c615ce-3c3c-485a-9ae2-e36dca963f95.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135097610-8b18c759-6207-435d-80d4-616ce62de8d3.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135153113-4db62f09-063b-4470-9fa9-1229150f703c.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135206587-7442cb63-77a7-4b87-8822-db91367db164.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135299397-38b04b81-3179-44e4-81ca-bb476b69f22f.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135402859-c6404c6a-f0fd-4bb9-bbef-0c5286b0b2a4.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135463380-9ee93382-7deb-48c0-ab38-519d679101e4.png">
+<meta property="article:published_time" content="2022-09-04T12:10:06.000Z">
+<meta property="article:modified_time" content="2022-09-04T12:12:03.187Z">
+<meta property="article:author" content="Cwww3">
+<meta property="article:tag" content="go">
+<meta property="article:tag" content="memory">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/1651132869540-a130e8b3-1f7d-45ec-8413-52bba81426a0.png">
+
+<link rel="canonical" href="https://cwww3.github.io/2022/09/04/go-memory/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>go-memery | Cwww3's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Cwww3's Blog" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Cwww3's Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Record what you think</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2022/09/04/go-memory/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/my-avatar.png">
+      <meta itemprop="name" content="Cwww3">
+      <meta itemprop="description" content="Record what you think">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Cwww3's Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go-memery
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-09-04 20:10:06 / 修改时间：20:12:03" itemprop="dateCreated datePublished" datetime="2022-09-04T20:10:06+08:00">2022-09-04</time>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2022/09/04/go-memory/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/09/04/go-memory/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h2><h3 id="TCMalloc"><a href="#TCMalloc" class="headerlink" title="TCMalloc"></a>TCMalloc</h3><p>TCMalloc 为每个 Thread 预分配一块缓存，每个 Thread 在申请内存时首先会先从这个缓存区 ThreadCache 申请，且所有 ThreadCache 缓存区还共享一个叫 CentralCache 的中心缓存。这里假设目前 Golang 的内存管理用的是原生 TCMalloc 模式，那么线程与内存的关系将如图所示。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651132869540-a130e8b3-1f7d-45ec-8413-52bba81426a0.png" alt="img"></p>
+<span id="more"></span>
+
+<p>ThreadCache 作为线程独立的第一交互内存，访问无需加锁，CentralCache 则作为 ThreadCache 临时补充缓存，访问需要加锁。</p>
+<p>TCMalloc 讲对象分为三类：小对象[0,256KB] 中对象(256KB,1MB] 大对象(1MB,+∞)</p>
+<p>ThreadCache 和 CentralCache 可以解决小对象内存块的申请,对于中/大对象的申请，TCMalloc 有一个全局共享内存堆 PageHeap。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133032054-ea888b96-0fb0-46ea-ac26-4c38abc2b66f.png" alt="image.png"></p>
+<p>PageHeap 也是一次系统调用从虚拟内存中申请的，PageHeap 很明显是全局的，所以访问一定是要加锁。其作用是当 CentralCache 没有足够内存时会从 PageHeap 取，当 CentralCache 内存过多或者充足，则将低命中内存块退还 PageHeap。如果 Thread 需要大对象申请超过的 Cache 容纳的内存块单元大小，也会直接从 PageHeap 获取。</p>
+<h4 id="TCMalloc-模型相关基础结构"><a href="#TCMalloc-模型相关基础结构" class="headerlink" title="TCMalloc 模型相关基础结构"></a>TCMalloc 模型相关基础结构</h4><h5 id="Page"><a href="#Page" class="headerlink" title="Page"></a>Page</h5><p>TCMalloc 将虚拟内存空间划分为多份同等大小的 Page，每个 Page 默认是 8KB。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133095495-53138cb4-89b8-4833-ac41-7957a1c19354.png" alt="image.png"></p>
+<h5 id="Span"><a href="#Span" class="headerlink" title="Span"></a>Span</h5><p>多个连续的 Page 称之为是一个 Span。TCMalloc 是以 Span 为单位向操作系统申请内存的。Span 集合是以双向链表的形式构建。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133255704-7c07cb59-d879-468f-a925-d3494454cb7d.png" alt="image.png"></p>
+<h5 id="Size-Class"><a href="#Size-Class" class="headerlink" title="Size Class"></a>Size Class</h5><p>在 256KB 以内的小对象，TCMalloc 会将这些小对象集合划分成多个内存刻度，同属于一个刻度类别下的内存集合称之为属于一个 Size Class</p>
+<p>每个 Size Class 都对应一个大小比如 8KB、16KB、32KB 等。在申请小对象内存的时候，TCMalloc 会根据使用方申请的空间大小就近向上取最接近的一个 Size Class 的 Span 内存块返回给使用方。**(图中的 Size Class 单位有误)**</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133299709-8c33bad3-a31f-4844-b07c-ad54a0dc64d4.png" alt="image.png"></p>
+<h4 id="ThreadCache"><a href="#ThreadCache" class="headerlink" title="ThreadCache"></a>ThreadCache</h4><p>在 TCMalloc 中每个线程都会有一份单独的缓存，就是 ThreadCache。ThreadCache 中对于每个 Size Class 都会有一个对应的 FreeList，FreeList 表示当前缓存中还有多少个空闲的内存可用。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133403346-3d07b578-45df-41b1-880e-d1a591d106ff.png" alt="image.png"></p>
+<p>使用方对于从 TCMalloc 申请的小对象，会直接从 TreadCache 获取，实则是从 FreeList 中返回一个空闲的对象，如果对应的 Size Class 刻度下已经没有空闲的 Span 可以被获取了，则 ThreadCache 会从 CentralCache 中获取。当使用方使用完内存之后，归还也是直接归还给当前的 ThreadCache 中对应刻度下的的 FreeList 中。</p>
+<p>不同 Thread 之间的 ThreadCache 是以双向链表的结构进行关联，是为了方便 TCMalloc 统计和管理。</p>
+<h4 id="CentralCache"><a href="#CentralCache" class="headerlink" title="CentralCache"></a>CentralCache</h4><p>CentralCache 是各个线程共用的，所以与 CentralCache 获取内存交互是需要加锁的。CentralCache 缓存的 Size Class 和 ThreadCache 的一样，这些缓存都被放在 CentralFreeList 中，当 ThreadCache 中的某个 Size Class 刻度下的缓存小对象不够用，就会向 CentralCache 对应的 Size Class 刻度的 CentralFreeList 获取，同样的如果 ThreadCache 有多余的缓存对象也会退还给响应的 CentralFreeList。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133530033-bd9265dc-fd49-4a77-a845-f175ab317ea9.png" alt="image.png"></p>
+<h4 id="PageHeap"><a href="#PageHeap" class="headerlink" title="PageHeap"></a>PageHeap</h4><p>PageHead 与 CentralCache 不同的是 CentralCache 是与 ThreadCache 布局一模一样的缓存，主要是起到针对 ThreadCache 的一层二级缓存作用，且只支持小对象内存分配。而 PageHeap 则是针对 CentralCache 的三级缓存。弥补对于中对象内存和大对象内存的分配，PageHeap 也是直接和操作系统虚拟内存衔接的一层缓存，当 ThreadCache、CentralCache、PageHeap 都找不到合适的 Span，PageHeap 则会调用操作系统内存申请系统调用函数来从虚拟内存的堆区中取出内存填充到 PageHeap 当中。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133596465-fd16a3cc-256a-464c-a066-b896043a9f63.png" alt="image.png"></p>
+<p>PageHeap 内部的 Span 管理，采用两种不同的方式，对于 128 个 Page 以内的 Span 申请，每个 Page 刻度都会用一个链表形式的缓存来存储。对于 128 个 Page 以上内存申请，PageHeap 是以有序集合来存放。</p>
+<h4 id="TCMalloc-的小对象分配"><a href="#TCMalloc-的小对象分配" class="headerlink" title="TCMalloc 的小对象分配"></a>TCMalloc 的小对象分配</h4><p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133672724-0ac13b26-1623-444a-8c81-0b2120b2e2fa.png" alt="image.png"></p>
+<h4 id="TCMalloc-的中对象分配"><a href="#TCMalloc-的中对象分配" class="headerlink" title="TCMalloc 的中对象分配"></a>TCMalloc 的中对象分配</h4><p>中对象为大于 256KB 且小于等于 1MB 的内存。对于中对象申请分配的流程 TCMalloc 与处理小对象分配有一定的区别。对于中对象分配，Thread 不再按照小对象的流程路径向 ThreadCache 获取，而是直接从 PageHeap 获取，具体的流程如图所示。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133803693-486e9b4a-ffb1-4932-a989-1df013b601c1.png" alt="image.png"></p>
+<p>PageHeap 将 128 个 Page 以内大小的 Span 定义为小 Span，将 128 个 Page 以上大小的 Span 定义为大 Span。由于一个 Page 为 8KB，那么 128 个 Page 即为 1MB，所以对于中对象的申请，PageHeap 均是按照小 Span 的申请流程。</p>
+<h4 id="TCMalloc-的大对象分配"><a href="#TCMalloc-的大对象分配" class="headerlink" title="TCMalloc 的大对象分配"></a>TCMalloc 的大对象分配</h4><p>对于超过 128 个 Page（即 1MB）的内存分配则为大对象分配流程。大对象分配与中对象分配情况类似，Thread 绕过 ThreadCache 和 CentralCache，直接向 PageHeap 获取。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651133987470-28f3feb2-8a9e-45be-a41b-596b1bd54e8d.png" alt="image.png"></p>
+<h3 id="Golang-堆内存管理"><a href="#Golang-堆内存管理" class="headerlink" title="Golang 堆内存管理"></a>Golang 堆内存管理</h3><p>Golang 内存管理模型的逻辑层次全景图，如图所示。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134285363-999c7495-7834-4785-a6ea-c44b4615ff19.png" alt="image.png"></p>
+<h4 id="Golang-内存管理单元相关概念"><a href="#Golang-内存管理单元相关概念" class="headerlink" title="Golang 内存管理单元相关概念"></a>Golang 内存管理单元相关概念</h4><h5 id="Page-1"><a href="#Page-1" class="headerlink" title="Page"></a>Page</h5><p>与 TCMalloc 的 Page 一致。</p>
+<h5 id="mSpan"><a href="#mSpan" class="headerlink" title="mSpan"></a>mSpan</h5><p>与 TCMalloc 中的 Span 一致。</p>
+<h5 id="Size-Class-1"><a href="#Size-Class-1" class="headerlink" title="Size Class"></a>Size Class</h5><p>Golang 内存管理针对 Size Class 对衡量内存的概念更加详细，这里面介绍一些基础的有关内存大小的名词及算法。</p>
+<ul>
+<li>Object Size: 应用一次向 Golang 内存申请的对象 Object 大小。 Page 是 Golang 内存管理与操作系统交互衡量内存容量的基本单元，Golang 内存管理内部本身用来给对象存储内存的基本单元是 Object。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134337384-3b5b18a9-63a2-41eb-89fb-d7a030b1e569-20220904121240445.png" alt="image.png"></p>
+<ul>
+<li>Size Class</li>
+</ul>
+<p>Golang 内存管理中的 Size Class 与 TCMalloc 所表示的设计含义是一致的，都表示一块内存的所属规格或者刻度。Golang 内存管理中的 Size Class 是针对 Object Size 来划分内存的。</p>
+<ul>
+<li>Span Class</li>
+</ul>
+<p>这个是 Golang 内存管理额外定义的规格属性，是针对 Span 来进行划分的，是 Span 大小的级别。<strong>一个 Size Class 会对应两个 Span Class</strong>，其中一个 Span 为存放需要 GC 扫描的对象（包含指针的对象），另一个 Span 为存放不需要 GC 扫描的对象（不包含指针的对象）</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134377320-3f71752d-65fa-4081-a255-09c387f23a65.png" alt="image.png"></p>
+<h4 id="MCache"><a href="#MCache" class="headerlink" title="MCache"></a>MCache</h4><p>从概念来讲 MCache 与 TCMalloc 的 ThreadCache 十分相似，访问 mcache 依然不需要加锁而是直接访问，且 MCache 中依然保存各种大小的 Span。虽然 MCache 与 ThreadCache 概念相似，二者还是存在一定的区别的，<strong>MCache 是与 Golang 协程调度模型 GPM 中的 P 所绑定，而不是和线程绑定</strong>。MCache 与 P 进行绑定更能节省内存空间使用，可以保证每个 G 使用 MCache 时不需要加锁就可以获取到内存。而 TCMalloc 中的 ThreadCache 随着 Thread 的增多。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134640677-2a153c96-b7e8-46bc-86f3-dfaf50087329.png" alt="image.png"></p>
+<p>对于 Span Class 为 0 和 1 的，也就是对应 Size Class 为 0 的规格刻度内存，mcache 实际上是没有分配任何内存的。因为 Golang 内存管理对内存为 0 的数据申请做了特殊处理，<strong>如果申请的数据大小为 0 将直接返回一个固定内存地址</strong>，不会走 Golang 内存管理的正常逻辑</p>
+<h4 id="MCentral"><a href="#MCentral" class="headerlink" title="MCentral"></a>MCentral</h4><p>当 MCache 中出现 Size Class 的 Span 空缺情况，MCache 则会向 MCentral 申请对应的 Span。Goroutine、MCache、MCentral、MHeap 互相交换的内存单位是不同，具体如图所示。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134740690-c1fc15a5-af2a-474c-adaa-ddc4bb05a5e3.png" alt="image.png"></p>
+<p>MCentral 与 TCMalloc 中的 Central 不同的是 MCentral 针对每个 Span Class 级别有两个 Span 链表，而 TCMalloc 中的 Central 只有一个。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651134816735-43c615ce-3c3c-485a-9ae2-e36dca963f95.png" alt="image.png"></p>
+<p>MCentral 与 MCache 不同的是，每个级别保存的不是<strong>一个 Span</strong>，而是<strong>一个 Span List 链表</strong>。与 TCMalloc 中的 Central 不同的是，MCentral 每个级别都保存了<strong>两个 Span List</strong>。</p>
+<h4 id="MHeap"><a href="#MHeap" class="headerlink" title="MHeap"></a>MHeap</h4><p>MHeap 是对内存块的管理对象，是通过 Page 为内存单元进行管理。那么用来详细管理每一系列 Page 的结构称之为一个 HeapArena，它们的逻辑层级关系如图所示。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135097610-8b18c759-6207-435d-80d4-616ce62de8d3.png" alt="image.png"></p>
+<p>一个 HeapArena 占用内存 64MB，其中里面的内存的是一个一个的 mspan，当然最小单元依然是 Page，图中没有表示出 mspan，因为多个连续的 page 就是一个 mspan。所有的 HeapArena 组成的集合是一个 Arenas，也就是 MHeap 针对堆内存的管理。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135153113-4db62f09-063b-4470-9fa9-1229150f703c.png" alt="image.png"></p>
+<h4 id="Tiny-对象分配流程"><a href="#Tiny-对象分配流程" class="headerlink" title="Tiny 对象分配流程"></a>Tiny 对象分配流程</h4><p>Golang 内存管理将对象大小进行了分类：Tiny 对象/小对象(16B 至 32KB)/大对象</p>
+<p>针对 Tiny 微小对象的分配，实际上 Golang 做了比较特殊的处理，之前在介绍 MCache 的时候并没有提及有关 Tiny 的存储和分配问题，MCache 中不仅保存着各个 Span Class 级别的内存块空间，还有一个比较特殊的 Tiny 存储空间。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135206587-7442cb63-77a7-4b87-8822-db91367db164.png" alt="image.png"></p>
+<p>Tiny 空间是从 Size Class = 2（对应 Span Class = 4 或 5）中获取一个 16B 的 Object，作为 Tiny 对象的分配空间。对于 Golang 内存管理为什么需要一个 Tiny 这样的 16B 空间，原因是因为如果协程逻辑层申请的内存空间小于等于 8B，那么根据正常的 Size Class 匹配会匹配到 Size Class = 1（对应 Span Class = 2 或 3），所以像 int32、 byte、 bool 以及小字符串等经常使用的 Tiny 微小对象，也都会使用从 Size Class = 1 申请的这 8B 的空间。但是类似 bool 或者 1 个字节的 byte，也都会各自独享这 8B 的空间，进而导致有一定的内存空间浪费。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135299397-38b04b81-3179-44e4-81ca-bb476b69f22f.png" alt="image.png"></p>
+<h4 id="小对象分配流程"><a href="#小对象分配流程" class="headerlink" title="小对象分配流程"></a>小对象分配流程</h4><p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135402859-c6404c6a-f0fd-4bb9-bbef-0c5286b0b2a4.png" alt="image.png"></p>
+<h4 id="大对象分配流程"><a href="#大对象分配流程" class="headerlink" title="大对象分配流程"></a>大对象分配流程</h4><p>小对象是在 MCache 中分配的，而大对象是直接从 MHeap 中分配。对于不满足 MCache 分配范围的对象，均是按照大对象分配流程处理。</p>
+<p>大对象分配流程是协程逻辑层直接向 MHeap 申请对象所需要的适当 Pages，从而绕过从 MCaceh 到 MCentral 的繁琐申请内存流程，大对象的内存分配流程相对比较简单，具体的流程如图所示。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/1651135463380-9ee93382-7deb-48c0-ab38-519d679101e4.png" alt="image.png"></p>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>Donate comment here.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Cwww3 微信支付">
+        <p>微信支付</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+              <a href="/tags/memory/" rel="tag"># memory</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/09/04/informer/" rel="prev" title="Informer机制">
+      <i class="fa fa-chevron-left"></i> Informer机制
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TCMalloc"><span class="nav-number">1.1.</span> <span class="nav-text">TCMalloc</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#TCMalloc-%E6%A8%A1%E5%9E%8B%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E7%BB%93%E6%9E%84"><span class="nav-number">1.1.1.</span> <span class="nav-text">TCMalloc 模型相关基础结构</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Page"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">Page</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Span"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">Span</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Size-Class"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">Size Class</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ThreadCache"><span class="nav-number">1.1.2.</span> <span class="nav-text">ThreadCache</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CentralCache"><span class="nav-number">1.1.3.</span> <span class="nav-text">CentralCache</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PageHeap"><span class="nav-number">1.1.4.</span> <span class="nav-text">PageHeap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TCMalloc-%E7%9A%84%E5%B0%8F%E5%AF%B9%E8%B1%A1%E5%88%86%E9%85%8D"><span class="nav-number">1.1.5.</span> <span class="nav-text">TCMalloc 的小对象分配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TCMalloc-%E7%9A%84%E4%B8%AD%E5%AF%B9%E8%B1%A1%E5%88%86%E9%85%8D"><span class="nav-number">1.1.6.</span> <span class="nav-text">TCMalloc 的中对象分配</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#TCMalloc-%E7%9A%84%E5%A4%A7%E5%AF%B9%E8%B1%A1%E5%88%86%E9%85%8D"><span class="nav-number">1.1.7.</span> <span class="nav-text">TCMalloc 的大对象分配</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Golang-%E5%A0%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">Golang 堆内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Golang-%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E5%8D%95%E5%85%83%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">1.2.1.</span> <span class="nav-text">Golang 内存管理单元相关概念</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Page-1"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">Page</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#mSpan"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">mSpan</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Size-Class-1"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">Size Class</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MCache"><span class="nav-number">1.2.2.</span> <span class="nav-text">MCache</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MCentral"><span class="nav-number">1.2.3.</span> <span class="nav-text">MCentral</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#MHeap"><span class="nav-number">1.2.4.</span> <span class="nav-text">MHeap</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Tiny-%E5%AF%B9%E8%B1%A1%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.5.</span> <span class="nav-text">Tiny 对象分配流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%8F%E5%AF%B9%E8%B1%A1%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.6.</span> <span class="nav-text">小对象分配流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%A7%E5%AF%B9%E8%B1%A1%E5%88%86%E9%85%8D%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.7.</span> <span class="nav-text">大对象分配流程</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Cwww3"
+      src="/images/my-avatar.png">
+  <p class="site-author-name" itemprop="name">Cwww3</p>
+  <div class="site-description" itemprop="description">Record what you think</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/cwww3" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://stackoverflow.com/users/15761669/cwww3" title="StackOverflow → https:&#x2F;&#x2F;stackoverflow.com&#x2F;users&#x2F;15761669&#x2F;cwww3" rel="noopener" target="_blank"><i class="fab fa-stack-overflow fa-fw"></i>StackOverflow</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Cwww3</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'YhdC1c2cA0bpuapj4ksny0W9-gzGzoHsz',
+      appKey     : 'TIwAfWuWHudJm4hWreg0vUKo',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : false,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
