@@ -20,27 +20,25 @@
     var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="HTTPSHTTP 由于是明⽂传输，所以安全上存在以下三个⻛险： 窃听⻛险，⽐如通信链路上可以获取通信内容，⽤户号容易没。 篡改⻛险，⽐如强制植⼊垃圾⼴告，视觉污染，⽤户眼容易瞎。 冒充⻛险，⽐如冒充淘宝⽹站，⽤户钱容易没。">
+  <meta name="description" content="CDN 是构建在现有网络基础之上的智能虚拟网络，依靠部署在各地的边缘服务器，通过中心平台的负载均衡、内容分发、调度等功能模块，使用户就近获取所需内容，降低网络拥塞，提高用户访问响应速度和命中率。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="HTTPS">
-<meta property="og:url" content="https://cwww3.github.io/2021/11/27/HTTPS/index.html">
+<meta property="og:title" content="CDN">
+<meta property="og:url" content="https://cwww3.github.io/2022/09/09/system-design/cdn/index.html">
 <meta property="og:site_name" content="Cwww3&#39;s Blog">
-<meta property="og:description" content="HTTPSHTTP 由于是明⽂传输，所以安全上存在以下三个⻛险： 窃听⻛险，⽐如通信链路上可以获取通信内容，⽤户号容易没。 篡改⻛险，⽐如强制植⼊垃圾⼴告，视觉污染，⽤户眼容易瞎。 冒充⻛险，⽐如冒充淘宝⽹站，⽤户钱容易没。">
+<meta property="og:description" content="CDN 是构建在现有网络基础之上的智能虚拟网络，依靠部署在各地的边缘服务器，通过中心平台的负载均衡、内容分发、调度等功能模块，使用户就近获取所需内容，降低网络拥塞，提高用户访问响应速度和命中率。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127200955709.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127201037389.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127201414160.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127204231432.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/16380164319252.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127204841502.png">
-<meta property="article:published_time" content="2021-11-27T12:52:40.000Z">
-<meta property="article:modified_time" content="2022-09-03T18:36:37.818Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/ec8346c69f1e4f33af93c8cc6fd991e1~tplv-k3u1fbpfcp-zoom-in-crop-mark%3A4536%3A0%3A0%3A0.awebp">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/35328dd8b2d743069aa538521d0089c2~tplv-k3u1fbpfcp-zoom-in-crop-mark%3A4536%3A0%3A0%3A0.awebp">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/539a70a65ed44530af51a4d1b8d31df9~tplv-k3u1fbpfcp-zoom-in-crop-mark%3A4536%3A0%3A0%3A0.awebp">
+<meta property="article:published_time" content="2022-09-08T16:22:37.000Z">
+<meta property="article:modified_time" content="2022-09-08T16:24:41.050Z">
 <meta property="article:author" content="Cwww3">
-<meta property="article:tag" content="网络">
+<meta property="article:tag" content="System Design">
+<meta property="article:tag" content="CDN">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127200955709.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/ec8346c69f1e4f33af93c8cc6fd991e1~tplv-k3u1fbpfcp-zoom-in-crop-mark%3A4536%3A0%3A0%3A0.awebp">
 
-<link rel="canonical" href="https://cwww3.github.io/2021/11/27/HTTPS/">
+<link rel="canonical" href="https://cwww3.github.io/2022/09/09/system-design/cdn/">
 
 
 <script id="page-configurations">
@@ -53,7 +51,7 @@
   };
 </script>
 
-  <title>HTTPS | Cwww3's Blog</title>
+  <title>CDN | Cwww3's Blog</title>
   
 
 
@@ -165,7 +163,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2021/11/27/HTTPS/">
+    <link itemprop="mainEntityOfPage" href="https://cwww3.github.io/2022/09/09/system-design/cdn/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/my-avatar.png">
@@ -178,7 +176,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          HTTPS
+          CDN
         </h1>
 
         <div class="post-meta">
@@ -187,16 +185,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2021-11-27 20:52:40" itemprop="dateCreated datePublished" datetime="2021-11-27T20:52:40+08:00">2021-11-27</time>
+              <time title="创建时间：2022-09-09 00:22:37 / 修改时间：00:24:41" itemprop="dateCreated datePublished" datetime="2022-09-09T00:22:37+08:00">2022-09-09</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-09-04 02:36:37" itemprop="dateModified" datetime="2022-09-04T02:36:37+08:00">2022-09-04</time>
-              </span>
 
           
   
@@ -207,8 +199,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2021/11/27/HTTPS/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/11/27/HTTPS/" itemprop="commentCount"></span>
+    <a title="valine" href="/2022/09/09/system-design/cdn/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/09/09/system-design/cdn/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -223,71 +215,25 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h2><p>HTTP 由于是明⽂传输，所以安全上存在以下三个⻛险：</p>
-<p>窃听⻛险，⽐如通信链路上可以获取通信内容，⽤户号容易没。</p>
-<p>篡改⻛险，⽐如强制植⼊垃圾⼴告，视觉污染，⽤户眼容易瞎。</p>
-<p>冒充⻛险，⽐如冒充淘宝⽹站，⽤户钱容易没。</p>
+        <p>CDN 是构建在<strong>现有网络基础之上的智能虚拟网络</strong>，依靠部署在各地的<strong>边缘服务器</strong>，通过中心平台的负载均衡、内容分发、调度等功能模块，<strong>使用户就近获取所需内容</strong>，降低网络拥塞，<strong>提高用户访问响应速度和命中率</strong>。</p>
 <span id="more"></span>
 
-<p>HTTP<strong>S</strong> 在 HTTP 与 TCP 层之间加⼊了 SSL/TLS 协议，可以很好的解决 HTTP 的安全问题。</p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/ec8346c69f1e4f33af93c8cc6fd991e1~tplv-k3u1fbpfcp-zoom-in-crop-mark%3A4536%3A0%3A0%3A0.awebp" alt="img"></p>
+<p>这幅图展示了互联网通信领域中常说的”<strong>三公里</strong>“：</p>
 <ul>
-<li><p>混合加密的⽅式实现信息的机密性，解决了窃听的⻛险。</p>
-<p>在通信建⽴前采⽤⾮对称加密的⽅式交换「会话秘钥」，后续就不再使⽤⾮对称加密。</p>
-<p>在通信过程中全部使⽤对称加密的「会话秘钥」的⽅式加密明⽂数据。</p>
-<p>对称加密只使⽤⼀个密钥，运算速度快，密钥必须保密，⽆法做到安全的密钥交换。⾮对称加密使⽤两个密钥：公钥和私钥，公钥可以任意分发⽽私钥保密，解决了密钥交换问题但速度慢。</p>
-<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127200955709.png" alt="image-20211127200955709" style="zoom:25%;" /></li>
-<li><p>摘要算法的⽅式来实现完整性，它能够为数据⽣成独⼀⽆⼆的「指纹」，指纹⽤于校验数据的完整性，解决了篡改的⻛险。</p>
-<p>客户端在发送明⽂之前会通过摘要算法算出明⽂的「指纹」，发送的时候把「指纹 + 明⽂」⼀同加密成密⽂后，发送给服务器，服务器解密后，⽤相同的摘要算法算出发送过来的明⽂，通过⽐较客户端携带的「指纹」和当前算出的「指纹」做⽐较，若「指纹」相同，说明数据是完整的。</p>
-<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127201037389.png" alt="image-20211127201037389" style="zoom:25%;" /></li>
-<li><p>数字证书，解决了冒充的⻛险。</p>
-<p>客户端先向服务器端索要公钥，然后⽤公钥加密信息，服务器收到密⽂后，⽤⾃⼰的私钥解密。这就存在些问题，如何保证公钥不被篡改和信任度？所以这⾥就需要借助第三⽅权威机构 CA （数字证书认证机构），将服务器公钥放在数字证书（由数字证书认证机构颁发）中，只要证书是可信的，公钥就是可信的。</p>
-</li>
+<li><strong>第一公里</strong><br>网站服务器接入互联网公网的链路，这里的带宽也决定了网站的负载能力，也称为网站的接入带宽。</li>
+<li><strong>中间一公里</strong><br>中间一公里主要是接入网、城域网、骨干网组成的链路实体，其中会涉及多家运营商，也就出现了运营商之间互联互通的数据交换问题。</li>
+<li><strong>最后一公里</strong><br>这是用户接入互联网获取信息的最后环节</li>
 </ul>
-<p>​ <img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127201414160.png" alt="image-20211127201414160" style="zoom:33%;" /></p>
-<h3 id="SSL-TLS-协议基本流程"><a href="#SSL-TLS-协议基本流程" class="headerlink" title="SSL/TLS 协议基本流程"></a>SSL/TLS 协议基本流程</h3><p>TSL 四次握手</p>
-<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127204231432.png" alt="image-20211127204231432" style="zoom:50%;" />
-
-<ul>
-<li>ClientHello</li>
-</ul>
-<p>⾸先，由客户端向服务器发起加密通信请求，也就是 ClientHello 请求。</p>
-<p>在这⼀步，客户端主要向服务器发送以下信息：</p>
-<p>（1）客户端⽀持的 SSL/TLS 协议版本，如 TLS 1.2 版本。</p>
-<p>（2）客户端⽣产的随机数（ Client Random ），后⾯⽤于⽣产「会话秘钥」。</p>
-<p>（3）客户端⽀持的密码套件列表，如 RSA 加密算法。</p>
-<ul>
-<li>ServerHello</li>
-</ul>
-<p>服务器收到客户端请求后，向客户端发出响应，也就是 SeverHello 。服务器回应的内容有如下内容：</p>
-<p>（1）确认 SSL/ TLS 协议版本，如果浏览器不⽀持，则关闭加密通信。</p>
-<p>（2）服务器⽣产的随机数（ Server Random ），后⾯⽤于⽣产「会话秘钥」。</p>
-<p>（3）确认的密码套件列表，如 RSA 加密算法。</p>
-<p>（4）服务器的数字证书。</p>
-<ul>
-<li>客户端回应</li>
-</ul>
-<p>客户端收到服务器的回应之后，⾸先通过浏览器或者操作系统中的 CA 公钥，确认服务器的数字证书的真实性。如果证书没有问题，客户端会从数字证书中取出服务器的公钥，然后使⽤它加密报⽂，向服务器发送如下信息：</p>
-<p>（1）⼀个随机数（ pre-master key ）。该随机数会被服务器公钥加密。</p>
-<p>（2）加密通信算法改变通知，表示随后的信息都将⽤「会话秘钥」加密通信。</p>
-<p>（3）客户端握⼿结束通知，表示客户端的握⼿阶段已经结束。这⼀项同时把之前所有内容的发⽣的数据做个摘要，⽤来供服务端校验。上⾯第⼀项的随机数是整个握⼿阶段的第三个随机数，这样服务器和客户端就同时有三个随机数，接着就⽤双⽅协商的加密算法，各⾃⽣成本次通信的「会话秘钥」。</p>
-<ul>
-<li>服务器的最后回应</li>
-</ul>
-<p>服务器收到客户端的第三个随机数（ pre-master key ）之后，通过协商的加密算法，计算出本次通信的「会话秘钥」。然后，向客户端发⽣最后的信息：</p>
-<p>（1）加密通信算法改变通知，表示随后的信息都将⽤「会话秘钥」加密通信。</p>
-<p>（2）服务器握⼿结束通知，表示服务器的握⼿阶段已经结束。这⼀项同时把之前所有内容的发⽣的数据做个摘要，⽤来供客户端校验。</p>
-<p>⾄此，整个 SSL/TLS 的握⼿阶段全部结束。接下来，客户端与服务器进⼊加密通信，就完全是使⽤普通的 HTTP 协议，只不过⽤「会话秘钥」加密内容。</p>
-<p>事实上，不同的密钥交换算法，TLS 的握⼿过程可能会有⼀些区别。</p>
-<p>这⾥先简单介绍下密钥交换算法，因为考虑到性能的问题，所以双⽅在加密应⽤信息时使⽤的是对称加密密钥，⽽对称加密密钥是不能被泄漏的，为了保证对称加密密钥的安全性，所以使⽤⾮对称加密的⽅式来保护对称加密密钥的协商，这个⼯作就是密钥交换算法负责的。接下来，我们就以最简单的 RSA 密钥交换算法，来看看它的 TLS 握⼿过程。</p>
-<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/16380164319252.png" alt="16380164319252"  />
-
-<p><strong>RSA</strong> 算法的缺陷</p>
-<p>使⽤ <strong>RSA</strong> 密钥协商算法的最⼤问题是不⽀持<strong>前向保密</strong>。因为客户端传递随机数（⽤于⽣成对称加密密钥的条件之⼀）给服务端时使⽤的是公钥加密的，服务端收到到后，会⽤私钥解密得到随机数。所以⼀旦服务端的私钥泄漏了，过去被第三⽅截获的所有 TLS 通讯密⽂都会被破解。</p>
-<p>为了解决这⼀问题，于是就有了 DH 密钥协商算法，这⾥简单介绍它的⼯作流程。</p>
-<img src="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20211127204841502.png" alt="image-20211127204841502" style="zoom:50%;" />
-
-<p>客户端和服务端各⾃会⽣成随机数，并以此作为私钥，然后根据公开的 DH 计算公示算出各⾃的公钥，通过 TLS 握⼿双⽅交换各⾃的公钥，这样双⽅都有⾃⼰的私钥和对⽅的公钥，然后双⽅根据各⾃持有的材料算出⼀个随机数，这个随机数的值双⽅都是⼀样的，这就可以作为后续对称加密时使⽤的密钥。</p>
-<p>DH 密钥交换过程中，即使第三⽅截获了 <strong>TLS</strong> 握⼿阶段传递的公钥，在不知道的私钥的情况下，也是⽆法计算出密钥的，⽽且每⼀次对称加密密钥都是实时⽣成的，实现前向保密。但因为 DH 算法的计算效率问题，后⾯出现了 ECDHE 密钥协商算法，我们现在⼤多数⽹站使⽤的正是 ECDHE 密钥协商算法。</p>
+<p>运营商之间数据的互联互通问题，比如 A 市联通要访问 A 市电信的数据资源，按照互联互通的规则限制，不同运营商的数据要<strong>在指定的交换中心进行数据交换</strong>，假如交换中心位于较远的 B 市，本来两个运营商是同一个城市的，但由于运营商的网络差异需要到几百公里之外的交换中心所在的城市进行数据交换，实现资源的访问</p>
+<h4 id="传统-DNS"><a href="#传统-DNS" class="headerlink" title="传统 DNS"></a>传统 DNS</h4><p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/35328dd8b2d743069aa538521d0089c2~tplv-k3u1fbpfcp-zoom-in-crop-mark%3A4536%3A0%3A0%3A0.awebp" alt="img"></p>
+<h4 id="有-CDN-参与的-DNS-调度过程"><a href="#有-CDN-参与的-DNS-调度过程" class="headerlink" title="有 CDN 参与的 DNS 调度过程"></a>有 CDN 参与的 DNS 调度过程</h4><p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/539a70a65ed44530af51a4d1b8d31df9~tplv-k3u1fbpfcp-zoom-in-crop-mark%3A4536%3A0%3A0%3A0.awebp" alt="img"></p>
+<p>CDN 服务商提供的<strong>专用 DNS 调度服务器</strong>(TenCent DNS Server)根据 CDN 系统内部节点的位置、负载情况、资源分配等因素选出最优的 CDN 资源节点 IP 地址返回给用户</p>
+<h4 id="静态加速"><a href="#静态加速" class="headerlink" title="静态加速"></a>静态加速</h4><p>如果每个用户访问得到的资源一样，就像电视台播放节目，大家看到的都一样，并非个性化的结果，这类资源就可以称为静态资源。 比如网站的图片、视频、软件安装包、各类下载资源文件等。</p>
+<p>这些资源变化很小，因此非常使用 CDN 加速，对改善网站性能效果明显。</p>
+<h4 id="动态加速"><a href="#动态加速" class="headerlink" title="动态加速"></a>动态加速</h4><p>区别于静态资源，动态资源则更倾向于接口、个性化内容，用户每次请求得到的结果可能不同，这些资源并不适合 CDN 场景，如果强行使用会带来数据更新缓慢和不一致问题，但是动态资源有其特有的加速方法。</p>
+<p>动态资源就意味着回源站进行数据请求，这其中就涉及到<strong>最优回源路径的选择</strong>，让路更好走，数据获取更快捷，实现动态资源的加速。</p>
+<h4 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h4><p>[<a target="_blank" rel="noopener" href="https://juejin.cn/post/7064952956201730062#heading-14]">https://juejin.cn/post/7064952956201730062#heading-14]</a>(</p>
 
     </div>
 
@@ -312,7 +258,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag"># 网络</a>
+              <a href="/tags/System-Design/" rel="tag"># System Design</a>
+              <a href="/tags/CDN/" rel="tag"># CDN</a>
           </div>
 
         
@@ -321,13 +268,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/11/27/Nginx/" rel="prev" title="Nginx">
-      <i class="fa fa-chevron-left"></i> Nginx
+    <a href="/2022/09/08/GC/" rel="prev" title="GO-GC">
+      <i class="fa fa-chevron-left"></i> GO-GC
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/12/24/kqueue/" rel="next" title="kqueue">
-      kqueue <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -387,7 +331,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTPS"><span class="nav-number">1.</span> <span class="nav-text">HTTPS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SSL-TLS-%E5%8D%8F%E8%AE%AE%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">SSL&#x2F;TLS 协议基本流程</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%A0%E7%BB%9F-DNS"><span class="nav-number">1.</span> <span class="nav-text">传统 DNS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%89-CDN-%E5%8F%82%E4%B8%8E%E7%9A%84-DNS-%E8%B0%83%E5%BA%A6%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">有 CDN 参与的 DNS 调度过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E5%8A%A0%E9%80%9F"><span class="nav-number">3.</span> <span class="nav-text">静态加速</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E5%8A%A0%E9%80%9F"><span class="nav-number">4.</span> <span class="nav-text">动态加速</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">引用</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
