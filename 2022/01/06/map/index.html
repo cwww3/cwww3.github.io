@@ -34,13 +34,13 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220105000801438.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220105000418534.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220105000448649.png">
-<meta property="og:image" content="https://cwww3.github.io/2022/01/Library/Application%20Support/typora-user-images/image-20220104232034372.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20220104232034372.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232110233.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232812869.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232911854.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/cwww3/picture/master/pic/image-20220104232940068.png">
 <meta property="article:published_time" content="2022-01-05T16:29:49.000Z">
-<meta property="article:modified_time" content="2022-09-03T18:36:37.799Z">
+<meta property="article:modified_time" content="2023-05-11T04:46:36.491Z">
 <meta property="article:author" content="Cwww3">
 <meta property="article:tag" content="Go">
 <meta name="twitter:card" content="summary">
@@ -201,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-09-04 02:36:37" itemprop="dateModified" datetime="2022-09-04T02:36:37+08:00">2022-09-04</time>
+                <time title="修改时间：2023-05-11 12:46:36" itemprop="dateModified" datetime="2023-05-11T12:46:36+08:00">2023-05-11</time>
               </span>
 
           
@@ -355,7 +355,7 @@
 <p>搬迁的目的就是将老的 buckets 搬迁到新的 buckets。而通过前面的说明我们知道，应对条件 1，新的 buckets 数量是之前的一倍，应对条件 2，新的 buckets 数量和之前相等。</p>
 <p>对于条件 2，从老的 buckets 搬迁到新的 buckets，由于 bucktes 数量不变，因此可以按序号来搬，比如原来在 0 号 bucktes，到新的地方后，仍然放在 0 号 buckets。</p>
 <p>对于条件 1，就没这么简单了。要重新计算 key 的哈希，才能决定它到底落在哪个 bucket。例如，原来 B = 5，计算出 key 的哈希后，只用看它的低 5 位，就能决定它落在哪个 bucket。扩容后，B 变成了 6，因此需要多看一位，它的低 6 位决定 key 落在哪个 bucket。这称为 <code>rehash</code>。</p>
-<p><img src="../../Library/Application%20Support/typora-user-images/image-20220104232034372.png" alt="image-20220104232034372"></p>
+<p><img src="https://raw.githubusercontent.com/cwww3/picture/master/img/image-20220104232034372.png" alt="image-20220104232034372"></p>
 <p>因此，某个 key 在搬迁前后 bucket 序号可能和原来相等，也可能是相比原来加上 2^B（原来的 B 值），取决于 hash 值 第 6 bit 位是 0 还是 1。</p>
 <p>再明确一个问题：如果扩容后，B 增加了 1，意味着 buckets 总数是原来的 2 倍，原来 1 号的桶“裂变”到两个桶。</p>
 <p>例如，原始 B = 2，1 号 bucket 中有 2 个 key 的哈希值低 3 位分别为：010，110。由于原来 B = 2，所以低 2 位 <code>10</code> 决定它们落在 2 号桶，现在 B 变成 3，所以 <code>010</code>、<code>110</code> 分别落入 2、6 号桶。</p>
