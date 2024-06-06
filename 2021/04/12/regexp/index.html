@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"cwww3.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="元字符 .     匹配除换行符以外的任意字符  \w   匹配字母或数字或下划线或汉字  \s   匹配任意的空白符 (包括空格，制表符，换行符，中文全角空格等)  \d   匹配数字  \b   匹配单词的开始或结束 并不匹配这些单词分隔字符中的任何一个，它只匹配一个位置  ^     匹配字符串的开始  $     匹配字符串的结束">
+  <meta name="description" content="元字符 . 匹配除换行符以外的任意字符 \w 匹配字母或数字或下划线或汉字 \s 匹配任意的空白符 (包括空格，制表符，换行符，中文全角空格等) \d 匹配数字 \b 匹配单词的开始或结束 并不匹配这些单词分隔字符中的任何一个，它只匹配一个位置 ^ 匹配字符串的开始 $ 匹配字符串的结束">
 <meta property="og:type" content="article">
 <meta property="og:title" content="正则表达式">
 <meta property="og:url" content="https://cwww3.github.io/2021/04/12/regexp/index.html">
 <meta property="og:site_name" content="Cwww3&#39;s Blog">
-<meta property="og:description" content="元字符 .     匹配除换行符以外的任意字符  \w   匹配字母或数字或下划线或汉字  \s   匹配任意的空白符 (包括空格，制表符，换行符，中文全角空格等)  \d   匹配数字  \b   匹配单词的开始或结束 并不匹配这些单词分隔字符中的任何一个，它只匹配一个位置  ^     匹配字符串的开始  $     匹配字符串的结束">
+<meta property="og:description" content="元字符 . 匹配除换行符以外的任意字符 \w 匹配字母或数字或下划线或汉字 \s 匹配任意的空白符 (包括空格，制表符，换行符，中文全角空格等) \d 匹配数字 \b 匹配单词的开始或结束 并不匹配这些单词分隔字符中的任何一个，它只匹配一个位置 ^ 匹配字符串的开始 $ 匹配字符串的结束">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-04-11T16:00:37.000Z">
-<meta property="article:modified_time" content="2021-05-26T02:22:03.000Z">
+<meta property="article:modified_time" content="2024-06-06T04:29:13.649Z">
 <meta property="article:author" content="Cwww3">
 <meta property="article:tag" content="正则表达式">
 <meta name="twitter:card" content="summary">
@@ -188,7 +188,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-05-26 10:22:03" itemprop="dateModified" datetime="2021-05-26T10:22:03+08:00">2021-05-26</time>
+                <time title="修改时间：2024-06-06 12:29:13" itemprop="dateModified" datetime="2024-06-06T12:29:13+08:00">2024-06-06</time>
               </span>
 
           
@@ -217,33 +217,25 @@
 
       
         <h3 id="元字符"><a href="#元字符" class="headerlink" title="元字符"></a>元字符</h3><ul>
-<li><p><code>.</code>     匹配除换行符以外的任意字符</p>
-</li>
-<li><p><code>\w</code>   匹配字母或数字或下划线或汉字</p>
-</li>
-<li><p><code>\s</code>   匹配任意的空白符 (包括空格，制表符，换行符，中文全角空格等)</p>
-</li>
-<li><p><code>\d</code>   匹配数字</p>
-</li>
-<li><p><code>\b</code>   匹配单词的开始或结束 并不匹配这些单词分隔字符中的任何一个，它<strong>只匹配一个位置</strong></p>
-</li>
-<li><p><code>^</code>     匹配字符串的开始</p>
-</li>
-<li><p><code>$</code>     匹配字符串的结束</p>
-<span id="more"></span>
-<h3 id="字符转义"><a href="#字符转义" class="headerlink" title="字符转义"></a>字符转义</h3></li>
-<li><p>如果想查找元字符本身的话，比如查找<code>.</code>或者<code>*</code>就出现了问题——你没办法指定它们，因为它们会被解释成别的意思。</p>
-</li>
-<li><p>这时你就得使用<code>\</code>来取消这些字符的特殊意义。因此，你应该使用<code>\.</code>和<code>\*</code>。当然，要查找<code>\</code>本身，你也得用<code>\\</code></p>
-</li>
+<li><code>.</code> 匹配除换行符以外的任意字符</li>
+<li><code>\w</code> 匹配字母或数字或下划线或汉字</li>
+<li><code>\s</code> 匹配任意的空白符 (包括空格，制表符，换行符，中文全角空格等)</li>
+<li><code>\d</code> 匹配数字</li>
+<li><code>\b</code> 匹配单词的开始或结束 并不匹配这些单词分隔字符中的任何一个，它<strong>只匹配一个位置</strong></li>
+<li><code>^</code> 匹配字符串的开始</li>
+<li><code>$</code> 匹配字符串的结束<span id="more"></span></li>
+</ul>
+<h3 id="字符转义"><a href="#字符转义" class="headerlink" title="字符转义"></a>字符转义</h3><ul>
+<li>如果想查找元字符本身的话，比如查找<code>.</code>或者<code>*</code>就出现了问题——你没办法指定它们，因为它们会被解释成别的意思。</li>
+<li>这时你就得使用<code>\</code>来取消这些字符的特殊意义。因此，你应该使用<code>\.</code>和<code>\*</code>。当然，要查找<code>\</code>本身，你也得用<code>\\</code></li>
 </ul>
 <h3 id="重复"><a href="#重复" class="headerlink" title="重复"></a>重复</h3><ul>
 <li><code>*</code> 重复零次或更多次</li>
 <li><code>+</code> 重复一次或更多次</li>
 <li><code>?</code> 重复零次或一次</li>
-<li><code>&#123;n&#125;</code> 重复n次</li>
-<li><code>&#123;n,&#125;</code> 重复n次或更多次</li>
-<li><code>&#123;n,m&#125;</code> 重复n到m次</li>
+<li><code>&#123;n&#125;</code> 重复 n 次</li>
+<li><code>&#123;n,&#125;</code> 重复 n 次或更多次</li>
+<li><code>&#123;n,m&#125;</code> 重复 n 到 m 次</li>
 </ul>
 <h3 id="字符类"><a href="#字符类" class="headerlink" title="字符类"></a>字符类</h3><ul>
 <li><code>[aeiou]</code> 匹配没有预定义元字符的字符集合</li>
@@ -254,9 +246,9 @@
 <li><code>|</code> 使用分枝条件时，要注意各个条件的顺序 会从左到右地测试每个条件，如果满足了某个分枝的话，就不会去再管其它的条件了</li>
 </ul>
 <h3 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h3><ul>
-<li><code>()</code> </li>
-<li>使用小括号指定一个子表达式后，<strong>匹配这个子表达式的文本</strong>(也就是此分组捕获的内容)可以在表达式或其它程序中作进一步的处理。默认情况下，每个分组会自动拥有一个<strong>组号</strong>，规则是：从左向右，以分组的左括号为标志，第一个出现的分组的组号为1，第二个为2，以此类推。</li>
-<li>分组0对应整个正则表达式</li>
+<li><code>()</code></li>
+<li>使用小括号指定一个子表达式后，<strong>匹配这个子表达式的文本</strong>(也就是此分组捕获的内容)可以在表达式或其它程序中作进一步的处理。默认情况下，每个分组会自动拥有一个<strong>组号</strong>，规则是：从左向右，以分组的左括号为标志，第一个出现的分组的组号为 1，第二个为 2，以此类推。</li>
+<li>分组 0 对应整个正则表达式</li>
 <li>实际上组号分配过程是要从左向右扫描两遍的：第一遍只给未命名组分配，第二遍只给命名组分配，因此所有命名组的组号都大于未命名的组号</li>
 </ul>
 <h3 id="反义"><a href="#反义" class="headerlink" title="反义"></a>反义</h3><ul>
@@ -264,62 +256,62 @@
 <li><code>\S</code> 匹配任意不是空白符的字符</li>
 <li><code>\D</code> 匹配任意非数字的字符</li>
 <li><code>\B</code> 匹配不是单词开头或结束的位置</li>
-<li><code>[^x]</code> 匹配除了x以外的任意字符</li>
-<li><code>[^aeiou]</code> 匹配除了aeiou这几个字母以外的任意字符</li>
+<li><code>[^x]</code> 匹配除了 x 以外的任意字符</li>
+<li><code>[^aeiou]</code> 匹配除了 aeiou 这几个字母以外的任意字符</li>
 </ul>
 <h3 id="后向引用"><a href="#后向引用" class="headerlink" title="后向引用"></a>后向引用</h3><h4 id="捕获"><a href="#捕获" class="headerlink" title="捕获"></a>捕获</h4><ul>
-<li><strong>后向引用</strong>用于重复搜索前面某个分组匹配的文本。例如，<code>\1</code> 代表分组1匹配的文本。</li>
+<li><strong>后向引用</strong>用于重复搜索前面某个分组匹配的文本。例如，<code>\1</code> 代表分组 1 匹配的文本。</li>
 <li><code>\b(\w+)\b\s+\1\b</code> 可以用来匹配重复的单词，像<em>go go</em>, 或者<em>kitty kitty</em>。</li>
-<li>也可以自己指定子表达式的<strong>组名</strong>。要指定一个子表达式的组名，使用这样的语法：<code>(?&lt;Word&gt;\w+)</code> (或者把尖括号换成’也行：<code>(?&#39;Word&#39;\w+))</code> ,这样就把\w+的组名指定为Word了。要反向引用这个分组<strong>捕获</strong>的内容，你可以使用<code>\k&lt;Word&gt;</code>, 所以可以改成这样：<code>\b(?&lt;Word&gt;\w+)\b\s+\k&lt;Word&gt;\b</code>。</li>
-<li><code>(exp)</code> 匹配exp,并捕获文本到自动命名的组里</li>
-<li><code>(?&lt;name&gt;exp)</code> 配exp,并捕获文本到名称为name的组里，也可以写成<code>(?&#39;name&#39;exp)</code></li>
-<li><code>(?:exp)</code> 匹配exp,不捕获匹配的文本，也不给此分组分配组号</li>
+<li>也可以自己指定子表达式的<strong>组名</strong>。要指定一个子表达式的组名，使用这样的语法：<code>(?P&lt;Word&gt;\w+)</code>,这样就把\w+的组名指定为 Word 了。要反向引用这个分组<strong>捕获</strong>的内容，你可以使用<code>\k&lt;Word&gt;</code>, 所以可以改成这样：<code>\b(?P&lt;Word&gt;\w+)\b\s+\k&lt;Word&gt;\b</code>。</li>
+<li><code>(exp)</code> 匹配 exp,并捕获文本到自动命名的组里</li>
+<li><code>(?P&lt;name&gt;exp)</code> 配 exp,并捕获文本到名称为 name 的组里`</li>
+<li><code>(?:exp)</code> 匹配 exp,不捕获匹配的文本，也不给此分组分配组号</li>
 </ul>
 <h3 id="零宽断言"><a href="#零宽断言" class="headerlink" title="零宽断言"></a>零宽断言</h3><ul>
 <li><p>查找在某些内容(但并不包括这些内容)之前或之后的东西，也就是说它们像\b,^,$那样用于指定一个位置，这个位置应该满足一定的条件(即断言)。</p>
 </li>
-<li><p><code>(?=exp)</code> **零宽度正预测先行断言 **  断言自身出现的位置的后面能匹配表达式exp  匹配exp前面的位置</p>
+<li><p><code>(?=exp)</code> **零宽度正预测先行断言 ** 断言自身出现的位置的后面能匹配表达式 exp 匹配 exp 前面的位置</p>
 <ul>
-<li><code>\b\w+(?=ing\b)</code>，匹配以ing结尾的单词的前面部分(除了ing以外的部分)，如查找*I’m singing while you’re dancing.*时，它会匹配sing和danc。</li>
+<li><code>\b\w+(?=ing\b)</code>，匹配以 ing 结尾的单词的前面部分(除了 ing 以外的部分)，如查找*I’m singing while you’re dancing.*时，它会匹配 sing 和 danc。</li>
 </ul>
 </li>
-<li><p><code>(?&lt;=exp)</code> <strong>零宽度正回顾后发断言</strong> 断言自身出现的位置的前面能匹配表达式exp 匹配exp后面的位置</p>
+<li><p><code>(?&lt;=exp)</code> <strong>零宽度正回顾后发断言</strong> 断言自身出现的位置的前面能匹配表达式 exp 匹配 exp 后面的位置</p>
 <ul>
-<li>比如<code>(?&lt;=\bre)\w+\b</code> 会匹配以re开头的单词的后半部分(除了re以外的部分)，例如在查找<em>reading a book</em>时，它匹配ading。</li>
+<li>比如<code>(?&lt;=\bre)\w+\b</code> 会匹配以 re 开头的单词的后半部分(除了 re 以外的部分)，例如在查找<em>reading a book</em>时，它匹配 ading。</li>
 </ul>
 </li>
 </ul>
 <h3 id="负向零宽断言"><a href="#负向零宽断言" class="headerlink" title="负向零宽断言"></a>负向零宽断言</h3><ul>
-<li><code>(?!exp)</code> <strong>零宽度负预测先行断言</strong> 匹配后面跟的不是exp的位置 断言此位置的后面不能匹配表达式exp。<ul>
-<li><code>\d&#123;3&#125;(?!\d)</code> 匹配三位数字，而且这三位数字的后面不能是数字；<code>\b((?!abc)\w)+\b</code> 匹配不包含连续字符串abc的单词。</li>
+<li><code>(?!exp)</code> <strong>零宽度负预测先行断言</strong> 匹配后面跟的不是 exp 的位置 断言此位置的后面不能匹配表达式 exp。<ul>
+<li><code>\d&#123;3&#125;(?!\d)</code> 匹配三位数字，而且这三位数字的后面不能是数字；<code>\b((?!abc)\w)+\b</code> 匹配不包含连续字符串 abc 的单词。</li>
 </ul>
 </li>
-<li><code>(?&lt;!exp)</code>  <strong>零宽度负回顾后发断言</strong> 匹配前面不是exp的位置 断言此位置的前面不能匹配表达式exp<ul>
+<li><code>(?&lt;!exp)</code> <strong>零宽度负回顾后发断言</strong> 匹配前面不是 exp 的位置 断言此位置的前面不能匹配表达式 exp<ul>
 <li><code>(?&lt;![a-z])\d&#123;7&#125;</code> 匹配前面不是小写字母的七位数字。</li>
-<li><code>(?&lt;=&lt;(\w+)&gt;).*(?=&lt;\/\1&gt;)</code>  这样如果前缀实际上是<code>&lt;b&gt;</code>的话，后缀就是<code>&lt;/b&gt;</code>了。整个表达式匹配的是<b>和</b>之间的内容(再次提醒，不包括前缀和后缀本身)。</li>
+<li><code>(?&lt;=&lt;(\w+)&gt;).*(?=&lt;\/\1&gt;)</code> 这样如果前缀实际上是<code>&lt;b&gt;</code>的话，后缀就是<code>&lt;/b&gt;</code>了。整个表达式匹配的是<b>和</b>之间的内容(再次提醒，不包括前缀和后缀本身)。</li>
 </ul>
 </li>
 </ul>
 <h3 id="贪婪与懒惰"><a href="#贪婪与懒惰" class="headerlink" title="贪婪与懒惰"></a>贪婪与懒惰</h3><ul>
 <li><p>当正则表达式中包含能接受重复的限定符时，通常的行为是（在使整个表达式能得到匹配的前提下）匹配<strong>尽可能多</strong>的字符。</p>
 <ul>
-<li><code>a.*b</code>，它将会匹配最长的以a开始，以b结束的字符串。如果用它来搜索<em>aabab</em>的话，它会匹配整个字符串aabab。这被称为<strong>贪婪</strong>匹配。</li>
+<li><code>a.*b</code>，它将会匹配最长的以 a 开始，以 b 结束的字符串。如果用它来搜索<em>aabab</em>的话，它会匹配整个字符串 aabab。这被称为<strong>贪婪</strong>匹配。</li>
 </ul>
 </li>
 <li><p>有时，我们更需要<strong>懒惰</strong>匹配，也就是匹配<strong>尽可能少</strong>的字符。前面给出的限定符都可以被转化为懒惰匹配模式，只要在它后面加上一个问号<code>?</code>。这样<code>.*?</code> 就意味着匹配任意数量的重复，但是在能使整个匹配成功的前提下使用最少的重复。现在看看懒惰版的例子吧：</p>
 <ul>
-<li><code>a.*?b</code> 匹配最短的，以a开始，以b结束的字符串。如果把它应用于<em>aabab</em>的话，它会匹配aab（第一到第三个字符）和ab（第四到第五个字符）。</li>
+<li><code>a.*?b</code> 匹配最短的，以 a 开始，以 b 结束的字符串。如果把它应用于<em>aabab</em>的话，它会匹配 aab（第一到第三个字符）和 ab（第四到第五个字符）。</li>
 </ul>
 </li>
 <li><p><code>*?</code> 重复任意次，但尽可能少重复</p>
 </li>
-<li><p><code>+?</code> 重复1次或更多次，但尽可能少重复</p>
+<li><p><code>+?</code> 重复 1 次或更多次，但尽可能少重复</p>
 </li>
-<li><p><code>??</code> 重复0次或1次，但尽可能少重复</p>
+<li><p><code>??</code> 重复 0 次或 1 次，但尽可能少重复</p>
 </li>
-<li><p><code>&#123;n,m&#125;?</code> 重复n到m次，但尽可能少重复</p>
+<li><p><code>&#123;n,m&#125;?</code> 重复 n 到 m 次，但尽可能少重复</p>
 </li>
-<li><p><code>&#123;n,&#125;?</code> 重复n次以上，但尽可能少重复</p>
+<li><p><code>&#123;n,&#125;?</code> 重复 n 次以上，但尽可能少重复</p>
 </li>
 </ul>
 
@@ -481,7 +473,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
